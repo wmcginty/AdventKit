@@ -5,19 +5,18 @@ import PackageDescription
 
 let package = Package(
     name: "AdventKit",
+    platforms: [.macOS(.v11), .iOS(.v14), .tvOS(.v14), .visionOS(.v1)],
     products: [
-        // Products define the executables and libraries a package produces, making them visible to other packages.
-        .library(
-            name: "AdventKit",
-            targets: ["AdventKit"]),
+        .library(name: "AdventKit", targets: ["AdventKit"])],
+    dependencies: [
+        .package(url: "https://github.com/apple/swift-collections", branch: "release/1.1")
     ],
     targets: [
-        // Targets are the basic building blocks of a package, defining a module or a test suite.
-        // Targets can depend on other targets in this package and products from dependencies.
-        .target(
-            name: "AdventKit"),
-        .testTarget(
-            name: "AdventKitTests",
-            dependencies: ["AdventKit"]),
+        .target(name: "AdventKit",
+                dependencies: [
+                    .product(name: "Collections", package: "swift-collections")
+                ],
+                path: "Sources"),
+        .testTarget(name: "AdventKitTests", dependencies: ["AdventKit"], path: "Tests")
     ]
 )
