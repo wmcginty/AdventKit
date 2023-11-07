@@ -28,7 +28,7 @@ private extension Logger {
 public func measure(part: Part, _ closure: @escaping () throws -> Void) rethrows {
     let start = Date()
 
-    Logger.measurements.critical("Starting \(part.title)")
+    Logger.measurements.info("Starting \(part.title)")
     try closure()
 
     let end = Date()
