@@ -32,5 +32,6 @@ public func measure(part: Part, _ closure: @escaping () throws -> Void) rethrows
     try closure()
 
     let end = Date()
-    Logger.measurements.log(level: .default, "Finished \(part.title). Elapsed: \(end.timeIntervalSince(start))")
+    let elapsed: Duration = .milliseconds(end.timeIntervalSince(start))
+    Logger.measurements.log(level: .default, "Finished \(part.title). Elapsed: \(elapsed.formatted())")
 }
