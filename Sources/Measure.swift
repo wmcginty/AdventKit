@@ -28,12 +28,12 @@ private extension Logger {
 public func measure(part: Part, _ closure: @escaping () throws -> Void) rethrows {
     let start = Date()
 
-    Logger.measurements.log(level: .default, "Starting \(part.title)")
+    Logger.measurements.critical("Starting \(part.title)")
     try closure()
 
     let end = Date()
     let elapsed: Duration = .milliseconds(end.timeIntervalSince(start))
     let formatStyle = Duration.UnitsFormatStyle(allowedUnits: [.nanoseconds, .microseconds, .milliseconds, .seconds, .minutes],
                                                 width: .narrow)
-    Logger.measurements.log(level: .default, "Finished \(part.title). Elapsed: \(elapsed.formatted(formatStyle))")
+    Logger.measurements.critical("Finished \(part.title). Elapsed: \(elapsed.formatted(formatStyle))")
 }
