@@ -33,5 +33,7 @@ public func measure(part: Part, _ closure: @escaping () throws -> Void) rethrows
 
     let end = Date()
     let elapsed: Duration = .milliseconds(end.timeIntervalSince(start))
-    Logger.measurements.log(level: .default, "Finished \(part.title). Elapsed: \(elapsed.formatted())")
+    let formatStyle = Duration.UnitsFormatStyle(allowedUnits: [.nanoseconds, .microseconds, .milliseconds, .seconds, .minutes],
+                                                width: .narrow)
+    Logger.measurements.log(level: .default, "Finished \(part.title). Elapsed: \(elapsed.formatted(formatStyle))")
 }
