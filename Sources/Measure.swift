@@ -25,15 +25,15 @@ private extension Logger {
     static let measurements = Logger(subsystem: subsystem, category: "measurements")
 }
 
-public func measure(part: Part, _ closure: @escaping () throws -> Void) rethrows {
+public func measure<T: CustomStringConvertible>(part: Part, _ closure: @escaping () throws -> T) rethrows {
     let start = Date()
 
     Logger.measurements.info("Starting \(part.title)")
-    try closure()
+    let answer = try closure()
 
     let end = Date()
     let elapsed: Duration = .milliseconds(end.timeIntervalSince(start))
     let formatStyle = Duration.UnitsFormatStyle(allowedUnits: [.nanoseconds, .microseconds, .milliseconds, .seconds, .minutes],
                                                 width: .narrow)
-    Logger.measurements.critical("Finished \(part.title). Elapsed: \(elapsed.formatted(formatStyle))")
+    Logger.measurements.critical("Finished \(part.title) [\(elapsed.formatted(formatStyle))]. Answer: \(answer)")
 }
