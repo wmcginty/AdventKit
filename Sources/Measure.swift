@@ -7,6 +7,7 @@
 
 import Foundation
 import OSLog
+@_exported import Collections
 
 public enum Part {
     case one, two
