@@ -28,6 +28,9 @@ public struct Grid<Element> {
     public var rowCount: Int { return contents.count }
     public func columnCount(for row: Int) -> Int { return contents[row].count }
     
+    public var lastRowIndex: Int { return rowCount - 1}
+    public func lastColumnIndex(for row: Int) -> Int { return columnCount(for: row) - 1 }
+    
     public var rows: Range<Int> { return 0..<rowCount }
     public func columns(for row: Int) -> Range<Int> { return 0..<columnCount(for: row) }
     
