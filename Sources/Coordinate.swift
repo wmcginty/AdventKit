@@ -22,13 +22,20 @@ public struct Coordinate: Hashable, CustomStringConvertible {
     // MARK: - Properties
     public let x, y: Int
 
-    // MARK: - Initializer
+    // MARK: - Initializers
     public init(x: Int, y: Int) {
         self.x = x
         self.y = y
     }
+    
+    public init(row: Int, column: Int) {
+        self.init(x: column, y: row)
+    }
 
     // MARK: - CustomStringConvertible
+    public var row: Int { return y }
+    public var col: Int { return x }
+
     public var description: String { return "\(x),\(y)" }
 }
 
@@ -80,7 +87,7 @@ public extension Coordinate {
         }
     }
 
-    func neighbors(in directions: [Direction] = Direction.allCases) -> [Coordinate] {
-        return directions.map(neighbor(in:))
+    func neighbors(in directions: [Direction] = Direction.allCases) -> Set<Coordinate> {
+        return Set(directions.map(neighbor(in:)))
     }
 }
