@@ -9,7 +9,7 @@ import Foundation
 import Collections
 
 public protocol Pathfinding {
-    func neighbors(for point: Coordinate) -> [Coordinate]
+    func neighbors(for coordinate: Coordinate) -> Set<Coordinate>
     func costToMove(from: Coordinate, to: Coordinate) -> Int
     func distance(from: Coordinate, to: Coordinate) -> Int
 }
