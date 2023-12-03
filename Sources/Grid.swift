@@ -28,7 +28,7 @@ public struct Grid<Element> {
     public var rowCount: Int { return contents.count }
     public func columnCount(for row: Int) -> Int { return contents[row].count }
     
-    public var lastRowIndex: Int { return rowCount - 1}
+    public var lastRowIndex: Int { return rowCount - 1 }
     public func lastColumnIndex(for row: Int) -> Int { return columnCount(for: row) - 1 }
     
     public var rows: Range<Int> { return 0..<rowCount }
@@ -51,6 +51,11 @@ public struct Grid<Element> {
     public func contentsOfRow(at index: Int) -> [Element] { return contents[index] }
     public func contentsOfColumn(at index: Int) -> [Element] { return contents.map { $0[index] } }
     public func contents(at coordinate: Coordinate) -> Element? { return dictionary[coordinate] }
+    
+    public func neighbors(of coordinate: Coordinate, in directions: [Coordinate.Direction] = Coordinate.Direction.allCases,
+                          matching predicate: (Element) throws -> Bool) rethrows -> Set<Coordinate> {
+        return Set(try coordinate.neighbors(in: directions).filter { try predicate(self[$0]) })
+    }
 }
 
 // MARK: - CustomStringConvertible

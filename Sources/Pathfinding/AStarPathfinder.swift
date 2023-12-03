@@ -8,13 +8,24 @@
 import Foundation
 import Collections
 
-public protocol Pathfinding {
+public protocol Pathfindable {
     func neighbors(for coordinate: Coordinate) -> Set<Coordinate>
     func costToMove(from: Coordinate, to: Coordinate) -> Int
     func distance(from: Coordinate, to: Coordinate) -> Int
 }
 
-public class AStarPathfinder<Map: Pathfinding> {
+public extension Pathfindable {
+    
+    func costToMove(from: Coordinate, to: Coordinate) -> Int {
+        return 1
+    }
+    
+    func distance(from: Coordinate, to: Coordinate) -> Int {
+        return from.manhattanDistance(to: to)
+    }
+}
+
+public class AStarPathfinder<Map: Pathfindable> {
 
     private final class PathNode: Comparable, CustomStringConvertible {
 
