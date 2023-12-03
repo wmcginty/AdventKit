@@ -5,7 +5,7 @@ import PackageDescription
 
 let package = Package(
     name: "AdventKit",
-    platforms: [.macOS(.v13), .iOS(.v14), .tvOS(.v14), .visionOS(.v1)],
+    platforms: [.macOS(.v13), .iOS(.v16), .tvOS(.v16), .visionOS(.v1)],
     products: [
         .library(name: "AdventKit", targets: ["AdventKit"])],
     dependencies: [
