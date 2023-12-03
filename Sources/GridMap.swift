@@ -14,7 +14,7 @@ public struct GridMap<Element>: Pathfinding {
     public let start: Coordinate
     public let end: Coordinate
     
-    private let neighbors: (Coordinate) -> Set<Coordinate>
+    private let neighbors: (Coordinate, Grid<Element>) -> Set<Coordinate>
     private let costToMove: (_ from: Coordinate, _ to: Coordinate) -> Int
     private let distance: (_ from: Coordinate, _ to: Coordinate) -> Int
 
@@ -29,7 +29,7 @@ public struct GridMap<Element>: Pathfinding {
     ///   - costToMove: A function that calculates the cost to move from a given `Coordinate` to another. Defaults to `1`.
     ///   - distance: A function that calculates the distance between a given `Coordinate` and another. Defaults to Manhattan distance.
     public init(grid: Grid<Element>, start: Coordinate, end: Coordinate,
-                neighbors: @escaping (Coordinate) -> Set<Coordinate>,
+                neighbors: @escaping (Coordinate, Grid<Element>) -> Set<Coordinate>,
                 costToMove: @escaping (_ from: Coordinate, _ to: Coordinate) -> Int = { _,_ in 1 },
                 distance: @escaping (_ from: Coordinate, _ to: Coordinate) -> Int = { $0.manhattanDistance(to: $1) }) {
         self.grid = grid
@@ -43,7 +43,7 @@ public struct GridMap<Element>: Pathfinding {
 
     // MARK: - Pathfinding
     public func neighbors(for coordinate: Coordinate) -> Set<Coordinate> {
-        return neighbors(coordinate)
+        return neighbors(coordinate, grid)
     }
 
     public func costToMove(from: Coordinate, to: Coordinate) -> Int {
