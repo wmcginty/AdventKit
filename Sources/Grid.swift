@@ -19,7 +19,7 @@ public struct Grid<Element> {
         self.dictionary = zip(contents.indices, contents).reduce(into: [:], { partialResult, element in
             let (row, rowContents) = element
             zip(rowContents.indices, rowContents).forEach { col, contents in
-                partialResult[Coordinate(x: col, y: row)] = contents
+                partialResult[Coordinate(row: row, column: col)] = contents
             }
         })
     }
