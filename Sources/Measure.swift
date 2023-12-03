@@ -29,7 +29,7 @@ private extension Logger {
 public func measure<T: CustomStringConvertible>(part: Part, _ closure: @escaping () throws -> T) rethrows {
     let start = Date()
 
-    Logger.measurements.info("Starting \(part.title)")
+    Logger.measurements.critical("Starting \(part.title)...")
     let answer = try closure()
 
     let end = Date()

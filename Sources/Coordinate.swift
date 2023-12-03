@@ -15,6 +15,7 @@ public struct Coordinate: Hashable, CustomStringConvertible {
 
         public var isNorthOrSouth: Bool { return self == .north || self == .south }
         public var isEastOrWest: Bool { return self == .east || self == .west }
+        public var isCardinal: Bool { return Self.cardinal.contains(self) }
 
         static let cardinal: [Direction] = [.north, .south, .east, .west]
     }
@@ -46,17 +47,25 @@ public extension Coordinate {
         return abs(x - point.x) + abs(y - point.y)
     }
 
-    func moved(in direction: Direction, amount: Int) -> Coordinate {
-        switch direction {
-        case .north: return Coordinate(x: x, y: y - amount)
-        case .northEast: return Coordinate(x: x + amount, y: y - amount)
-        case .east: return Coordinate(x: x + amount, y: y)
-        case .southEast: return Coordinate(x: x + amount, y: y + amount)
-        case .south: return Coordinate(x: x, y: y + amount)
-        case .southWest: return Coordinate(x: x - amount, y: y + amount)
-        case .west: return Coordinate(x: x - amount, y: y)
-        case .northWest: return Coordinate(x: x - amount, y: y - amount)
-        }
+    func moved(in direction: Direction, amount: Int, xLimit: Range<Int>? = nil, yLimit: Range<Int>? = nil) -> Coordinate {
+        let coordinate = {
+            switch direction {
+            case .north: return Coordinate(x: x, y: y - amount)
+            case .northEast: return Coordinate(x: x + amount, y: y - amount)
+            case .east: return Coordinate(x: x + amount, y: y)
+            case .southEast: return Coordinate(x: x + amount, y: y + amount)
+            case .south: return Coordinate(x: x, y: y + amount)
+            case .southWest: return Coordinate(x: x - amount, y: y + amount)
+            case .west: return Coordinate(x: x - amount, y: y)
+            case .northWest: return Coordinate(x: x - amount, y: y - amount)
+            }
+        }()
+        
+        return coordinate.limited(inX: xLimit, y: yLimit)
+    }
+    
+    func moved(in direction: Direction, amount: Int, rowLimit: Range<Int>? = nil, columnLimit: Range<Int>? = nil) -> Coordinate {
+        return moved(in: direction, amount: amount, xLimit: columnLimit, yLimit: rowLimit)
     }
 
     func line(to end: Coordinate) -> [Coordinate] {
@@ -64,6 +73,15 @@ public extension Coordinate {
         let dY = (end.y - y).signum()
         let range = max(abs(x - end.x), abs(y - end.y))
         return (0..<range).map { Coordinate(x: x + dX * $0, y: y + dY * $0) }
+    }
+    
+    func limited(inX xLimit: Range<Int>?, y yLimit: Range<Int>?) -> Coordinate {
+        return Coordinate(x: xLimit.map { min($0.upperBound, max(x,$0.lowerBound)) } ?? x,
+                          y: yLimit.map { min($0.upperBound, max(y,$0.lowerBound)) } ?? y)
+    }
+    
+    func limited(inRow rowLimit: Range<Int>?, column columnLimit: Range<Int>?) -> Coordinate {
+        return limited(inX: columnLimit, y: rowLimit)
     }
 }
 
