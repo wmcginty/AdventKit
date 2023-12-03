@@ -34,7 +34,7 @@ public struct Coordinate: Hashable, CustomStringConvertible {
 
     // MARK: - CustomStringConvertible
     public var row: Int { return y }
-    public var col: Int { return x }
+    public var column: Int { return x }
 
     public var description: String { return "\(x),\(y)" }
 }

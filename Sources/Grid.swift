@@ -10,8 +10,8 @@ import Foundation
 public struct Grid<Element> {
     
     // MARK: - Properties
-    public let contents: [[Element]]
-    public let dictionary: [Coordinate: Element]
+    public private(set) var contents: [[Element]]
+    public private(set) var dictionary: [Coordinate: Element]
     
     // MARK: - Initializer
     public init(contents: [[Element]]) {
@@ -37,6 +37,14 @@ public struct Grid<Element> {
         }
     }
     
+    public subscript(coordinate: Coordinate) -> Element {
+        get { return contents[coordinate.row][coordinate.column] }
+        set {
+            contents[coordinate.row][coordinate.column] = newValue
+            dictionary[coordinate] = newValue
+        }
+    }
+    
     public func contentsOfRow(at index: Int) -> [Element] { return contents[index] }
     public func contentsOfColumn(at index: Int) -> [Element] { return contents.map { $0[index] } }
     public func contents(at coordinate: Coordinate) -> Element? { return dictionary[coordinate] }
@@ -49,9 +57,8 @@ extension Grid: CustomStringConvertible where Element: CustomStringConvertible {
         var result = ""
         for row in rows {
             for column in columns(for: row) {
-                if let contents = contents(at: .init(row: row, column: column)) {
-                    result += contents.description
-                }
+                let coordinate = Coordinate(row: row, column: column)
+                result += self[coordinate].description
             }
             
             result += "\n"
