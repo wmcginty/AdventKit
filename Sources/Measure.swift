@@ -33,7 +33,7 @@ public func measure<T: CustomStringConvertible>(part: Part, _ closure: @escaping
     logger.critical("Starting \(part.title)...")
     let answer = try closure()
     let end = Date()
-    let elapsed: Duration = .milliseconds(end.timeIntervalSince(start))
+    let elapsed: Duration = .milliseconds(end.timeIntervalSince(start) * 1000)
     let formatStyle = Duration.UnitsFormatStyle(allowedUnits: [.nanoseconds, .microseconds, .milliseconds, .seconds, .minutes],
                                                 width: .narrow)
     logger.critical("Finished \(part.title) [\(elapsed.formatted(formatStyle))]. Answer: \(answer)")
@@ -46,7 +46,7 @@ public func measure<T: CustomStringConvertible>(part: Part, _ closure: @escaping
     logger.critical("Starting \(part.title)...")
     let answer = try closure(logger)
     let end = Date()
-    let elapsed: Duration = .milliseconds(end.timeIntervalSince(start))
+    let elapsed: Duration = .milliseconds(end.timeIntervalSince(start) * 1000)
     let formatStyle = Duration.UnitsFormatStyle(allowedUnits: [.nanoseconds, .microseconds, .milliseconds, .seconds, .minutes],
                                                 width: .narrow)
     logger.critical("Finished \(part.title) [\(elapsed.formatted(formatStyle))]. Answer: \(answer)")
@@ -59,7 +59,7 @@ public func measure(part: Part, _ closure: @escaping (Logger) throws -> Void) re
     logger.critical("Starting \(part.title)...")
     try closure(logger)
     let end = Date()
-    let elapsed: Duration = .milliseconds(end.timeIntervalSince(start))
+    let elapsed: Duration = .milliseconds(end.timeIntervalSince(start) * 1000)
     let formatStyle = Duration.UnitsFormatStyle(allowedUnits: [.nanoseconds, .microseconds, .milliseconds, .seconds, .minutes],
                                                 width: .narrow)
     logger.critical("Finished \(part.title) [\(elapsed.formatted(formatStyle))].")
