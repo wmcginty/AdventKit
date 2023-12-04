@@ -9,10 +9,6 @@ import Foundation
 
 precedencegroup ExponentPrecedence { higherThan: MultiplicationPrecedence }
 infix operator ^^ : ExponentPrecedence
-public func ^^ (radix: Int, power: Int) -> Int {
-    return Int(pow(radix, power))
-}
-
-public func pow (_ base: Int, _ exponent: Int) -> Int {
-    return (2...exponent).reduce(base) { result, _ in result * base }
+public func ^^ (radix: Int, exponent: Int) -> Int {
+    return Int(pow(Double(radix), Double(exponent)))
 }
