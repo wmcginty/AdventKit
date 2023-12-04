@@ -35,7 +35,7 @@ public func measure<T: CustomStringConvertible>(part: Part, _ closure: @escaping
     let end = Date()
     let elapsed: Duration = .milliseconds(end.timeIntervalSince(start) * 1000)
     let formatStyle = Duration.UnitsFormatStyle(allowedUnits: [.nanoseconds, .microseconds, .milliseconds, .seconds, .minutes],
-                                                width: .narrow)
+                                                width: .narrow, maximumUnitCount: 1, fractionalPart: .show(length: 3))
     logger.critical("Finished \(part.title) [\(elapsed.formatted(formatStyle))]. Answer: \(answer)")
 }
 
@@ -48,7 +48,7 @@ public func measure<T: CustomStringConvertible>(part: Part, _ closure: @escaping
     let end = Date()
     let elapsed: Duration = .milliseconds(end.timeIntervalSince(start) * 1000)
     let formatStyle = Duration.UnitsFormatStyle(allowedUnits: [.nanoseconds, .microseconds, .milliseconds, .seconds, .minutes],
-                                                width: .narrow)
+                                                width: .narrow, maximumUnitCount: 1, fractionalPart: .show(length: 3))
     logger.critical("Finished \(part.title) [\(elapsed.formatted(formatStyle))]. Answer: \(answer)")
 }
 
@@ -61,6 +61,6 @@ public func measure(part: Part, _ closure: @escaping (Logger) throws -> Void) re
     let end = Date()
     let elapsed: Duration = .milliseconds(end.timeIntervalSince(start) * 1000)
     let formatStyle = Duration.UnitsFormatStyle(allowedUnits: [.nanoseconds, .microseconds, .milliseconds, .seconds, .minutes],
-                                                width: .narrow)
+                                                width: .narrow, maximumUnitCount: 1, fractionalPart: .show(length: 3))
     logger.critical("Finished \(part.title) [\(elapsed.formatted(formatStyle))].")
 }
