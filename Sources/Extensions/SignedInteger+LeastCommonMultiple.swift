@@ -22,3 +22,20 @@ public extension SignedInteger {
         return self / greatestCommonDenominator(with: other) * other
     }
 }
+
+public extension Array where Element: SignedInteger {
+    
+    var greatestCommonDenominator: Element? {
+        guard !isEmpty else { return nil }
+        guard let first, count > 1 else { return first }
+        
+        return reduce(first) { $0.greatestCommonDenominator(with: $1) }
+    }
+
+    var leastCommonMultiple: Element? {
+        guard !isEmpty else { return nil }
+        guard let first, count > 1 else { return first }
+        
+        return reduce(first) { $0.leastCommonMultiple(with: $1) }
+    }
+}
