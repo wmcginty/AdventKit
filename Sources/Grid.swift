@@ -61,13 +61,13 @@ public struct Grid<Element> {
 // MARK: - CustomStringConvertible
 extension Grid: CustomStringConvertible where Element: CustomStringConvertible {
     
-    public func description(with additionalPredicate: (Element) -> String?) -> String {
+    public func description(with additionalPredicate: (Coordinate, Element) -> String?) -> String {
         var result = ""
         for row in rows {
             for column in columns(for: row) {
                 let coordinate = Coordinate(row: row, column: column)
                 let content = self[coordinate]
-                result += additionalPredicate(content) ?? content.description
+                result += additionalPredicate(coordinate, content) ?? content.description
             }
             
             result += "\n"
