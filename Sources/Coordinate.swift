@@ -15,9 +15,6 @@ public struct Coordinate: Hashable, CustomStringConvertible {
 
         public var isNorthOrSouth: Bool { return self == .north || self == .south }
         public var isEastOrWest: Bool { return self == .east || self == .west }
-        public var isCardinal: Bool { return Self.cardinal.contains(self) }
-
-        static let cardinal: [Direction] = [.north, .south, .east, .west]
     }
 
     // MARK: - Properties
@@ -108,4 +105,13 @@ public extension Coordinate {
     func neighbors(in directions: [Direction] = Direction.allCases) -> Set<Coordinate> {
         return Set(directions.map(neighbor(in:)))
     }
+}
+
+// MARK: - Coordinate.Direction + Cardinal
+public extension Coordinate.Direction {
+    var isCardinal: Bool { return [Self].cardinal.contains(self) }
+}
+
+public extension Array where Element == Coordinate.Direction {
+    static let cardinal: [Element] = [.north, .south, .east, .west]
 }
