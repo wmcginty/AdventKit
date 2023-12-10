@@ -56,6 +56,10 @@ public struct Grid<Element> {
                           matching predicate: (Element) throws -> Bool) rethrows -> Set<Coordinate> {
         return Set(try coordinate.neighbors(in: directions).filter { try predicate(self[$0]) })
     }
+    
+    public func map<T>(_ transform: (Element) throws -> T) rethrows -> Grid<T> {
+        return Grid<T>(contents: try contents.map { try $0.map(transform) })
+    }
 }
 
 // MARK: - CustomStringConvertible
@@ -70,7 +74,9 @@ extension Grid: CustomStringConvertible where Element: CustomStringConvertible {
                 result += additionalPredicate(coordinate, content) ?? content.description
             }
             
-            result += "\n"
+            if row < rows.upperBound - 1 {
+                result += "\n"
+            }
         }
         
         return result
@@ -84,7 +90,9 @@ extension Grid: CustomStringConvertible where Element: CustomStringConvertible {
                 result += self[coordinate].description
             }
             
-            result += "\n"
+            if row < rows.upperBound - 1 {
+                result += "\n"
+            }
         }
         
         return result

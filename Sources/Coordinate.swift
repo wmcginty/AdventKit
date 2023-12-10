@@ -15,6 +15,21 @@ public struct Coordinate: Hashable, CustomStringConvertible {
 
         public var isNorthOrSouth: Bool { return self == .north || self == .south }
         public var isEastOrWest: Bool { return self == .east || self == .west }
+        
+        // MARK: - Initializer
+        init?(from: Coordinate, toNeighbor neighbor: Coordinate) {
+            switch (neighbor.x - from.x, neighbor.y - from.y) {
+            case (1, -1): self = .northEast
+            case (1, 0): self = .east
+            case (1, 1): self = .southEast
+            case (0, 1): self = .south
+            case (0, -1): self = .north
+            case (-1, -1): self = .northWest
+            case (-1, 0): self = .west
+            case (-1, 1): self = .southWest
+            default: return nil
+            }
+        }
     }
 
     // MARK: - Properties
@@ -82,7 +97,7 @@ public extension Coordinate {
     }
 }
 
-// MARK: Coordinate + Neighbors
+// MARK: Coordinate + Neighbors, Directions
 public extension Coordinate {
 
     func isAdjacent(to other: Coordinate) -> Bool {
@@ -104,6 +119,10 @@ public extension Coordinate {
 
     func neighbors(in directions: [Direction] = Direction.allCases) -> Set<Coordinate> {
         return Set(directions.map(neighbor(in:)))
+    }
+    
+    func direction(to neighbor: Coordinate) -> Direction? {
+        return Direction(from: self, toNeighbor: neighbor)
     }
 }
 
