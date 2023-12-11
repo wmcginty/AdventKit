@@ -92,12 +92,12 @@ public extension Grid {
         var visitedCoordinates: Set<Coordinate> = []
         resultGrid.floodFill(with: { $0.filled }, startingAt: start,
                              validNeighborDirections: validNeighborDirections) { from, to in
-            guard !visitedCoordinates.contains(to.coordinate) else { return false }
-            visitedCoordinates.insert(to.coordinate)
-            
             let from = LocatedElement<Element>(coordinate: from.coordinate, element: from.element.value)
             let to = LocatedElement<Element>(coordinate: to.coordinate, element: to.element.value)
-            return canFloodEvaluator(from, to)
+            
+            guard canFloodEvaluator(from, to), !visitedCoordinates.contains(to.coordinate) else { return false }
+            visitedCoordinates.insert(to.coordinate)
+            return true
         }
 
         return resultGrid
