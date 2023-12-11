@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import DequeModule
 
 public enum FloodResult<T> {
     case filled(T)
@@ -56,22 +57,22 @@ public extension Grid {
     mutating func floodFill(with transform: (Element) -> Element, startingAt start: Coordinate,
                             validNeighborDirections: [Coordinate.Direction] = .cardinal,
                             canFloodEvaluator: (_ from: LocatedElement<Element>, _ to: LocatedElement<Element>) -> Bool) {
-        let currentElement = self[start]
-        let newElement = transform(currentElement)
-        self[start] = newElement
 
-        let neighbors = start.neighbors(in: validNeighborDirections)
-            .filter {
+        var deque: Deque<Coordinate> = [start]
+        while let next = deque.popFirst() {
+            let currentElement = self[next]
+            let newElement = transform(currentElement)
+            self[next] = newElement
+
+            let neighbors = next.neighbors(in: validNeighborDirections).filter {
                 guard let toElement = dictionary[$0] else { return false } // This must be a valid coordinate in the grid
-                
-                let from = LocatedElement(coordinate: start, element: newElement)
+
+                let from = LocatedElement(coordinate: next, element: newElement)
                 let to = LocatedElement(coordinate: $0, element: toElement)
-                return canFloodEvaluator(from, to) // We must be able to flood from `start` to `$0`
+                return canFloodEvaluator(from, to) // We must be able to flood from `next` to `$0`
             }
 
-        neighbors.forEach {
-            floodFill(with: transform, startingAt: $0,
-                      validNeighborDirections: validNeighborDirections, canFloodEvaluator: canFloodEvaluator)
+            deque.append(contentsOf: neighbors)
         }
     }
     
