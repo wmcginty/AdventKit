@@ -60,6 +60,10 @@ public struct Grid<Element> {
     public func map<T>(_ transform: (Element) throws -> T) rethrows -> Grid<T> {
         return Grid<T>(contents: try contents.map { try $0.map(transform) })
     }
+
+    public func count(where predicate: (Element) throws -> Bool) rethrows -> Int {
+        return try allCoordinates.filter { try predicate(self[$0]) }.count
+    }
 }
 
 // MARK: - CustomStringConvertible
