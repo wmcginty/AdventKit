@@ -95,7 +95,7 @@ public extension Grid {
             let from = LocatedElement<Element>(coordinate: from.coordinate, element: from.element.value)
             let to = LocatedElement<Element>(coordinate: to.coordinate, element: to.element.value)
             
-            guard canFloodEvaluator(from, to), !visitedCoordinates.contains(to.coordinate) else { return false }
+            guard !visitedCoordinates.contains(to.coordinate), canFloodEvaluator(from, to) else { return false }
             visitedCoordinates.insert(to.coordinate)
             return true
         }
