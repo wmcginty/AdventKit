@@ -66,6 +66,12 @@ public struct Grid<Element> {
     }
 }
 
+// MARK: - Equatable
+extension Grid: Equatable where Element: Equatable { }
+
+// MARK: - Hashable
+extension Grid: Hashable where Element: Hashable { }
+
 // MARK: - CustomStringConvertible
 extension Grid: CustomStringConvertible where Element: CustomStringConvertible {
     
