@@ -8,7 +8,21 @@
 import Foundation
 
 public struct Grid<Element> {
-    
+
+    // MARK: - Grid.LocatedElement
+    public struct LocatedElement {
+
+        // MARK: - Properties
+        public let coordinate: Coordinate
+        public let element: Element
+
+        // MARK: - Initializer
+        public init(coordinate: Coordinate, element: Element) {
+            self.coordinate = coordinate
+            self.element = element
+        }
+    }
+
     // MARK: - Properties
     public private(set) var contents: [[Element]]
     public private(set) var dictionary: [Coordinate: Element]
@@ -72,7 +86,16 @@ extension Grid: Equatable where Element: Equatable { }
 // MARK: - Hashable
 extension Grid: Hashable where Element: Hashable { }
 
+// MARK: - Identifiable
+extension Grid.LocatedElement: Identifiable where Element: Identifiable {
+    public var id: Element.ID { return element.id }
+}
+
 // MARK: - CustomStringConvertible
+extension Grid.LocatedElement: CustomStringConvertible where Element: CustomStringConvertible {
+    public var description: String { return element.description }
+}
+
 extension Grid: CustomStringConvertible where Element: CustomStringConvertible {
     
     public func description(with additionalPredicate: (Coordinate, Element) -> String?) -> String {

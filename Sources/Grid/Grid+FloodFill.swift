@@ -40,23 +40,16 @@ extension FloodResult: CustomStringConvertible where T: CustomStringConvertible 
 
 public extension Grid {
     
-    struct LocatedElement<T> {
-        
-        // MARK: - Properties
-        public let coordinate: Coordinate
-        public let element: T
-    }
-    
     mutating func floodFill(with element: Element, startingAt start: Coordinate,
                             validNeighborDirections: [Coordinate.Direction] = .cardinal,
-                            canFloodEvaluator: (_ from: LocatedElement<Element>, _ to: LocatedElement<Element>) -> Bool) {
+                            canFloodEvaluator: (_ from: LocatedElement, _ to: LocatedElement) -> Bool) {
         floodFill(with: { _ in element }, startingAt: start,
                   validNeighborDirections: validNeighborDirections, canFloodEvaluator: canFloodEvaluator)
     }
     
     mutating func floodFill(with transform: (Element) -> Element, startingAt start: Coordinate,
                             validNeighborDirections: [Coordinate.Direction] = .cardinal,
-                            canFloodEvaluator: (_ from: LocatedElement<Element>, _ to: LocatedElement<Element>) -> Bool) {
+                            canFloodEvaluator: (_ from: LocatedElement, _ to: LocatedElement) -> Bool) {
 
         var deque: Deque<Coordinate> = [start]
         while let next = deque.popFirst() {
@@ -78,7 +71,7 @@ public extension Grid {
     
     func floodFilled(with element: Element, startingAt start: Coordinate,
                             validNeighborDirections: [Coordinate.Direction] = .cardinal,
-                            canFloodEvaluator: (_ from: LocatedElement<Element>, _ to: LocatedElement<Element>) -> Bool) -> Grid<Element> {
+                            canFloodEvaluator: (_ from: LocatedElement, _ to: LocatedElement) -> Bool) -> Grid<Element> {
         var copy = self
         copy.floodFill(with: element, startingAt: start,
                        validNeighborDirections: validNeighborDirections, canFloodEvaluator: canFloodEvaluator)
@@ -88,15 +81,15 @@ public extension Grid {
     
     func floodFilled(startingAt start: Coordinate,
                      validNeighborDirections: [Coordinate.Direction] = .cardinal,
-                     canFloodEvaluator: (_ from: LocatedElement<Element>, _ to: LocatedElement<Element>) -> Bool) -> Grid<FloodResult<Element>> {
+                     canFloodEvaluator: (_ from: LocatedElement, _ to: LocatedElement) -> Bool) -> Grid<FloodResult<Element>> {
         var resultGrid = map { FloodResult.unfilled($0) }
         var visitedCoordinates: Set<Coordinate> = []
         resultGrid.floodFill(with: { $0.filled }, startingAt: start,
                              validNeighborDirections: validNeighborDirections) { from, to in
             guard !visitedCoordinates.contains(to.coordinate) else { return false }
             
-            let from = LocatedElement<Element>(coordinate: from.coordinate, element: from.element.value)
-            let to = LocatedElement<Element>(coordinate: to.coordinate, element: to.element.value)
+            let from = LocatedElement(coordinate: from.coordinate, element: from.element.value)
+            let to = LocatedElement(coordinate: to.coordinate, element: to.element.value)
             
             guard canFloodEvaluator(from, to) else { return false }
             visitedCoordinates.insert(to.coordinate)
