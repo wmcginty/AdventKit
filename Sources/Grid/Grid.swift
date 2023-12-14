@@ -53,7 +53,11 @@ public struct Grid<Element> {
             columns(for: row).map { Coordinate(row: row, column: $0) }
         }
     }
-    
+
+    public var locatedContents: [LocatedElement] {
+        return allCoordinates.map { .init(coordinate: $0, element: self[$0]) }
+    }
+
     public subscript(coordinate: Coordinate) -> Element {
         get { return contents[coordinate.row][coordinate.column] }
         set {
