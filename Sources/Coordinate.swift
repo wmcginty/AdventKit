@@ -16,6 +16,20 @@ public struct Coordinate: Hashable, CustomStringConvertible {
         public var isNorthOrSouth: Bool { return self == .north || self == .south }
         public var isEastOrWest: Bool { return self == .east || self == .west }
         
+        public var inverse: Direction {
+            switch self {
+                
+            case .north: return .south
+            case .northEast: return .southWest
+            case .east: return .west
+            case .southEast: return .northWest
+            case .south: return .north
+            case .southWest: return .northEast
+            case .west: return .east
+            case .northWest: return .southEast
+            }
+        }
+        
         // MARK: - Initializer
         init?(from: Coordinate, toNeighbor neighbor: Coordinate) {
             switch (neighbor.x - from.x, neighbor.y - from.y) {
