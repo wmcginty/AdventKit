@@ -8,7 +8,21 @@ final class AdventKitTests: XCTestCase {
         
         var description: String { return rawValue }
     }
-    
+
+    func testRotateClockwise() {
+        let grid: Grid<Int> = .init(contents: [
+        [1, 1, 1, 1],
+        [2, 2, 2, 2],
+        [3, 4, 5, 6]
+        ])
+
+        let rotated = grid.rotatedClockwise()
+        XCTAssertEqual(rotated.contents, [[3, 2, 1],
+                                          [4, 2, 1],
+                                          [5, 2, 1],
+                                          [6, 2, 1]])
+    }
+
     func testFloodFill_cardinalDirections() throws {
         let grid = Grid<Content>(contents:
                                     [[.path, .path, .path, .wall, .path, .path, .path],

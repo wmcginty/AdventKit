@@ -35,16 +35,17 @@ public struct GridMap<Element> {
     
     // MARK: - Interface
     public var rowCount: Int { return grid.rowCount }
-    public func columnCount(for row: Int) -> Int { return grid.columnCount(for: row) }
+    public func columnCount(forRow row: Int) -> Int { return grid.columnCount(forRow: row) }
     
     public var lastRowIndex: Int { return grid.lastRowIndex }
-    public func lastColumnIndex(for row: Int) -> Int { return grid.lastColumnIndex(for: row) }
-    
+    public func lastColumnIndex(forRow row: Int) -> Int { return grid.lastColumnIndex(forRow: row) }
+
     public var rows: Range<Int> { return grid.rows }
-    public func columns(for row: Int) -> Range<Int> { return grid.columns(for: row) }
-    
+    public func columns(forRow row: Int) -> Range<Int> { return grid.columns(forRow: row) }
+
     public var allCoordinates: [Coordinate] { return grid.allCoordinates }
-    
+    public var locatedContents: [Grid<Element>.LocatedElement] { return grid.locatedContents }
+
     /// Accesses through the array storage, will throw exception when passed an out of bounds coordinate.
     public subscript(coordinate: Coordinate) -> Element {
         get { return grid[coordinate] }
@@ -60,6 +61,14 @@ public struct GridMap<Element> {
     public func neighbors(of coordinate: Coordinate, in directions: [Coordinate.Direction] = Coordinate.Direction.allCases,
                           matching predicate: (Element) throws -> Bool) rethrows -> Set<Coordinate> {
         return try grid.neighbors(of: coordinate, in: directions, matching: predicate)
+    }
+
+    public func map<T>(_ transform: (Element) throws -> T) rethrows -> GridMap<T> {
+        return try GridMap<T>(grid: grid.map(transform), start: start, end: end)
+    }
+
+    public func count(where predicate: (Element) throws -> Bool) rethrows -> Int {
+        return try grid.count(where: predicate)
     }
 }
 

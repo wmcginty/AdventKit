@@ -40,17 +40,17 @@ public struct Grid<Element> {
 
     // MARK: - Interface
     public var rowCount: Int { return contents.count }
-    public func columnCount(for row: Int) -> Int { return contents[row].count }
-    
+    public func columnCount(forRow row: Int) -> Int { return contents[row].count }
+
     public var lastRowIndex: Int { return rowCount - 1 }
-    public func lastColumnIndex(for row: Int) -> Int { return columnCount(for: row) - 1 }
-    
+    public func lastColumnIndex(forRow row: Int) -> Int { return columnCount(forRow: row) - 1 }
+
     public var rows: Range<Int> { return 0..<rowCount }
-    public func columns(for row: Int) -> Range<Int> { return 0..<columnCount(for: row) }
-    
+    public func columns(forRow row: Int) -> Range<Int> { return 0..<columnCount(forRow: row) }
+
     public var allCoordinates: [Coordinate] {
         return rows.flatMap { row in
-            columns(for: row).map { Coordinate(row: row, column: $0) }
+            columns(forRow: row).map { Coordinate(row: row, column: $0) }
         }
     }
 
@@ -105,7 +105,7 @@ extension Grid: CustomStringConvertible where Element: CustomStringConvertible {
     public func description(with additionalPredicate: (Coordinate, Element) -> String?) -> String {
         var result = ""
         for row in rows {
-            for column in columns(for: row) {
+            for column in columns(forRow: row) {
                 let coordinate = Coordinate(row: row, column: column)
                 let content = self[coordinate]
                 result += additionalPredicate(coordinate, content) ?? content.description
@@ -122,7 +122,7 @@ extension Grid: CustomStringConvertible where Element: CustomStringConvertible {
     public var description: String {
         var result = ""
         for row in rows {
-            for column in columns(for: row) {
+            for column in columns(forRow: row) {
                 let coordinate = Coordinate(row: row, column: column)
                 result += self[coordinate].description
             }
