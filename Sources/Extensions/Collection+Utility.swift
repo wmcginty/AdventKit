@@ -14,7 +14,7 @@ public extension Array {
     }
     
     func max<T: Comparable>(by keyPath: KeyPath<Element, T>) -> Element? {
-        return self.max { $0[keyPath: keyPath] < $1[keyPath: keyPath] }
+        return self.max(by: { $0[keyPath: keyPath] < $1[keyPath: keyPath] })
     }
 }
 

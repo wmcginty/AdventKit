@@ -66,6 +66,14 @@ public struct Grid<Element> {
         }
     }
     
+    public func coordinatesForRow(at index: Int) -> [Coordinate] {
+        return columns(forRow: index).map { .init(row: index, column: $0) }
+    }
+    
+    public func coordinatesForColumn(at index: Int) -> [Coordinate] {
+        return rows.map { .init(row: $0, column: index) }
+    }
+    
     public func contentsOfRow(at index: Int) -> [Element] { return contents[index] }
     public func contentsOfColumn(at index: Int) -> [Element] { return contents.map { $0[index] } }
     public func contents(at coordinate: Coordinate) -> Element? { return dictionary[coordinate] }
