@@ -8,6 +8,7 @@
 import Foundation
 
 // MARK: - Stack
+@available(*, deprecated)
 public struct Stack<T> {
 
     // MARK: - Properties

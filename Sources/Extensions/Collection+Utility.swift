@@ -17,5 +17,3 @@ public extension Array {
         return self.max(by: { $0[keyPath: keyPath] < $1[keyPath: keyPath] })
     }
 }
-
-

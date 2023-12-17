@@ -9,7 +9,7 @@ import Foundation
 import Collections
 
 public protocol Pathfindable {
-    func neighbors(for coordinate: Coordinate) -> Set<Coordinate>
+    func neighbors(for coordinate: Coordinate, moving direction: Coordinate.Direction?) -> Set<Coordinate>
     func costToMove(from: Coordinate, to: Coordinate) -> Int
     func distance(from: Coordinate, to: Coordinate) -> Int
 }
@@ -81,18 +81,13 @@ public class AStarPathfinder<Map: Pathfindable> {
 
         while let currentNode = frontier.popMin() {
             let currentCoordinate = currentNode.coordinate
+            let currentDirection = currentNode.parent?.coordinate.direction(to: currentCoordinate)
 
             if ends.contains(currentCoordinate) {
-                var result = [Coordinate]()
-                var node: PathNode? = currentNode
-                while let n = node {
-                    result.append(n.coordinate)
-                    node = n.parent
-                }
-                return Array(result.reversed().dropFirst())
+                return fullPath(from: currentNode)
             }
 
-            for neighbor in map.neighbors(for: currentCoordinate) {
+            for neighbor in map.neighbors(for: currentCoordinate, moving: currentDirection) {
                 let moveCost = map.costToMove(from: currentCoordinate, to: neighbor)
                 let newCost = currentNode.gScore + moveCost
 
@@ -106,5 +101,19 @@ public class AStarPathfinder<Map: Pathfindable> {
         }
 
         return nil
+    }
+}
+
+// MARK: - Helper
+private extension AStarPathfinder {
+    
+    private func fullPath(from currentNode: PathNode) -> [Coordinate] {
+        var result: [Coordinate] = []
+        var node: PathNode? = currentNode
+        while let n = node {
+            result.append(n.coordinate)
+            node = n.parent
+        }
+        return Array(result.reversed())
     }
 }

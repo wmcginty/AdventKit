@@ -1,7 +1,7 @@
 import XCTest
 @testable import AdventKit
 
-final class AdventKitTests: XCTestCase {
+final class GridTests: XCTestCase {
     
     enum Content: String, CaseIterable, CustomStringConvertible {
         case path = "⬜️", wall = "⬛️", water = "🟦"
@@ -107,17 +107,5 @@ final class AdventKitTests: XCTestCase {
 🟧🟧🟧⬛️⬜️⬜️⬜️
 """
         XCTAssertEqual(description, expectation)
-    }
-    
-    func testCoordinateDirections() {
-        let coordinate = Coordinate(x: 3, y: 3)
-        for dir in Coordinate.Direction.allCases {
-            let neighbor = coordinate.neighbor(in: dir)
-            let calculatedDir = Coordinate.Direction(from: coordinate, toNeighbor: neighbor)
-            let otherCalculatedDir = coordinate.direction(to: neighbor)
-            
-            XCTAssertEqual(calculatedDir, dir)
-            XCTAssertEqual(otherCalculatedDir, dir)
-        }
     }
 }
