@@ -61,6 +61,7 @@ public class AStarPathfinder<Map: Pathfindable> {
 
     // MARK: - Properties
     public let map: Map
+    public var debugEnabled: Bool = false
 
     // MARK: - Initializer
     public init(map: Map) {
@@ -82,12 +83,25 @@ public class AStarPathfinder<Map: Pathfindable> {
         while let currentNode = frontier.popMin() {
             let currentCoordinate = currentNode.coordinate
             let currentDirection = currentNode.parent?.coordinate.direction(to: currentCoordinate)
+            
+            if debugEnabled {
+                print("Current: \(currentCoordinate)")
+                print("Previous: \(String(describing: currentNode.parent?.coordinate))")
+                print("Direction: \(String(describing: currentDirection))")
+            }
 
             if ends.contains(currentCoordinate) {
                 return fullPath(from: currentNode)
             }
+            
+            let neighbors = map.neighbors(for: currentCoordinate, moving: currentDirection)
+            
+            if debugEnabled {
+                print("Valid Neighbors: \(neighbors)")
+                print("Full Path: \(fullPath(from: currentNode))")
+            }
 
-            for neighbor in map.neighbors(for: currentCoordinate, moving: currentDirection) {
+            for neighbor in neighbors {
                 let moveCost = map.costToMove(from: currentCoordinate, to: neighbor)
                 let newCost = currentNode.gScore + moveCost
 
