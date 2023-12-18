@@ -52,7 +52,13 @@ public extension Grid {
                             canFloodEvaluator: (_ from: LocatedElement, _ to: LocatedElement) -> Bool) {
 
         var deque: Deque<Coordinate> = [start]
+        var visitedCoordinates: Set<Coordinate> = []
         while let next = deque.popFirst() {
+            if visitedCoordinates.contains(next) {
+                continue
+            }
+            
+            visitedCoordinates.insert(next)
             let currentElement = self[next]
             let newElement = transform(currentElement)
             self[next] = newElement
