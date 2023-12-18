@@ -76,6 +76,12 @@ public extension Coordinate {
         return abs(x - point.x) + abs(y - point.y)
     }
 
+    func euclideanDistance(to point: Coordinate) -> Double {
+        let dX = Double(x - point.x)
+        let dY = Double(y - point.y)
+        return sqrt(dX * dX + dY * dY)
+    }
+
     func moved(in direction: Direction, amount: Int, xLimit: Range<Int>? = nil, yLimit: Range<Int>? = nil) -> Coordinate {
         let coordinate = {
             switch direction {
