@@ -1,5 +1,5 @@
 //
-//  PathfindingTests.swift
+//  AStarPathfindingTests.swift
 //
 //
 //  Created by Will McGinty on 12/17/23.
@@ -8,7 +8,7 @@
 import XCTest
 @testable import AdventKit
 
-final class PathfindingTests: XCTestCase {
+final class AStarPathfindingTests: XCTestCase {
 
     let basicGrid = """
         ....
