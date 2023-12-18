@@ -60,7 +60,7 @@ public struct Coordinate: Hashable, CustomStringConvertible {
     }
     
     // MARK: - Preset
-    static let zero = Self(x: 0, y: 0)
+    public static let zero = Self(x: 0, y: 0)
 
     // MARK: - CustomStringConvertible
     public var row: Int { return y }
