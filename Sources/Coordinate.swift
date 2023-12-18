@@ -58,6 +58,9 @@ public struct Coordinate: Hashable, CustomStringConvertible {
     public init(row: Int, column: Int) {
         self.init(x: column, y: row)
     }
+    
+    // MARK: - Preset
+    static let zero = Self(x: 0, y: 0)
 
     // MARK: - CustomStringConvertible
     public var row: Int { return y }
