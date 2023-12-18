@@ -2,114 +2,121 @@
 //  AStarPathfinder.swift
 //
 //
-//  Created by Will McGinty on 12/20/22.
+//  Created by Will McGinty on 12/18/23.
 //
 
 import Foundation
 import Collections
 
-public protocol Pathfindable {
-    func neighbors(for coordinate: Coordinate, moving direction: Coordinate.Direction?) -> Set<Coordinate>
-    func costToMove(from: Coordinate, to: Coordinate) -> Int
-    func distance(from: Coordinate, to: Coordinate) -> Int
-}
+public class AStarPathfinder<State: Hashable, Cost: Numeric & Comparable> {
 
-public extension Pathfindable {
-    
-    func costToMove(from: Coordinate, to: Coordinate) -> Int {
-        return 1
-    }
-    
-    func distance(from: Coordinate, to: Coordinate) -> Int {
-        return from.manhattanDistance(to: to)
-    }
-}
+    public struct StateCost {
 
-public class AStarPathfinder<Map: Pathfindable> {
+        // MARK: - Properties
+        public let state: State
+        public let cost: Cost
+    }
+
+    public typealias Path = DijkstraPathfinder<State, Cost>.Path
 
     private final class PathNode: Comparable, CustomStringConvertible {
 
         // MARK: - Coordinates
-        let coordinate: Coordinate
+        let state: State
         let parent: PathNode?
 
-        let gScore: Int // Distance from start to node
-        let hScore: Int // Heuristic distance from node to destination (using Manhattan distance)
-        var fScore: Int { gScore + hScore }
+        let gScore: Cost // Cost from start to node
+        let hScore: Cost // Heuristic cost from node to destination
+        var fScore: Cost { gScore + hScore }
 
         // MARK: - Initializer
-        init(coordinate: Coordinate, parent: PathNode? = nil, moveCost: Int = 0, hScore: Int = 0) {
-            self.coordinate = coordinate
+        init(state: State, parent: PathNode? = nil, moveCost: Cost = 0, heuristicCost: Cost = 0) {
+            self.state = state
             self.parent = parent
             self.gScore = (parent?.gScore ?? 0) + moveCost
-            self.hScore = hScore
+            self.hScore = heuristicCost
         }
 
+        // MARK: - Interface
+        var currentCost: Cost { return gScore }
+        var estimatedRemainingCost: Cost { return hScore }
+        var estimatedTotalCost: Cost { return fScore }
+
+        var fullPath: Path {
+            var result: [PathNode] = []
+            var node: PathNode? = self
+            while let n = node {
+                result.append(n)
+                node = n.parent
+            }
+
+            return Path(stateCosts: result.reversed().map { .init(state: $0.state, cost: $0.gScore) })
+        }
+
+        // MARK: - Equatable
         static func == (lhs: PathNode, rhs: PathNode) -> Bool {
-            lhs.coordinate == rhs.coordinate
+            lhs.state == rhs.state
         }
 
+        // MARK: - Comparable
         static func < (lhs: PathNode, rhs: PathNode) -> Bool {
             lhs.fScore < rhs.fScore
         }
 
         // MARK: - CustomStringConvertible
         var description: String {
-            "pos=\(coordinate) g=\(gScore) h=\(hScore) f=\(fScore)"
+            "state=\(state) g=\(gScore) h=\(hScore) f=\(fScore)"
         }
     }
 
     // MARK: - Properties
-    public let map: Map
+    public let nextStateGenerator: (State) -> [StateCost]
     public var debugEnabled: Bool = false
 
     // MARK: - Initializer
-    public init(map: Map) {
-        self.map = map
+    public init(nextStates: @escaping (State) -> [StateCost]) {
+        self.nextStateGenerator = nextStates
     }
 
     // MARK: - Interface
-    public func shortestPath(from start: Coordinate, to end: Coordinate) -> [Coordinate]? {
-        return shortestPath(from: start, to: [end])
+    public func shortestPath(from initialState: State, 
+                             toTargets targetStates: [State],
+                             heuristic: (State) -> Cost) -> Path? {
+        return shortestPath(from: initialState, toTarget: { targetStates.contains($0) }, heuristic: heuristic)
     }
 
-    public func shortestPath(from start: Coordinate, to ends: [Coordinate]) -> [Coordinate]? {
-        var frontier = Heap<PathNode>()
-        frontier.insert(PathNode(coordinate: start))
+    public func shortestPath(from initialState: State, 
+                             toTarget targetPredicate: (State) -> Bool,
+                             heuristic: (State) -> Cost) -> Path? {
+        let initialStateHeuristic = heuristic(initialState)
+        var priorityQueue = Heap<PathNode>([.init(state: initialState, heuristicCost: initialStateHeuristic)])
+        var explored: [State: Cost] = [initialState: 0]
 
-        var explored = [Coordinate: Int]()
-        explored[start] = 0
-
-        while let currentNode = frontier.popMin() {
-            let currentCoordinate = currentNode.coordinate
-            let currentDirection = currentNode.parent?.coordinate.direction(to: currentCoordinate)
-            
+        while let next = priorityQueue.popMin() {
             if debugEnabled {
-                print("Current: \(currentCoordinate)")
-                print("Previous: \(String(describing: currentNode.parent?.coordinate))")
-                print("Direction: \(String(describing: currentDirection))")
+                debugPrint("Current: \(next)")
+                debugPrint("Parent: \(String(describing: next.parent))")
+                debugPrint()
             }
 
-            if ends.contains(currentCoordinate) {
-                return fullPath(from: currentNode)
-            }
-            
-            let neighbors = map.neighbors(for: currentCoordinate, moving: currentDirection)
-            
-            if debugEnabled {
-                print("Valid Neighbors: \(neighbors)")
-                print("Full Path: \(fullPath(from: currentNode))")
+            if targetPredicate(next.state) {
+                return next.fullPath
             }
 
-            for neighbor in neighbors {
-                let moveCost = map.costToMove(from: currentCoordinate, to: neighbor)
-                let newCost = currentNode.gScore + moveCost
+            for stateCost in nextStateGenerator(next.state) {
+                assert(stateCost.cost >= 0, "Negative costs are disallowed.")
 
-                if explored[neighbor] == nil || explored[neighbor]! > newCost {
-                    explored[neighbor] = newCost
-                    let hScore = map.distance(from: currentCoordinate, to: neighbor)
-                    let node = PathNode(coordinate: neighbor, parent: currentNode, moveCost: moveCost, hScore: hScore)
-                    frontier.insert(node)
+                let newCost = next.gScore + stateCost.cost
+                if explored[stateCost.state] == nil || explored[stateCost.state].map({ $0 > newCost }) == true {
+                    explored[stateCost.state] = newCost
+                    priorityQueue.insert(.init(state: stateCost.state, parent: next, moveCost: stateCost.cost, heuristicCost: heuristic(stateCost.state)))
+
+                    if debugEnabled {
+                        debugPrint("Evaluated neighbor: \(stateCost.state). Cost: \(stateCost.cost). Queued for further evaluation.")
+                    }
+
+                } else if debugEnabled {
+                    debugPrint("Evaluated neighbor: \(stateCost.state). Cost: \(stateCost.cost). Cost too high, discarded.")
                 }
             }
         }
@@ -118,18 +125,10 @@ public class AStarPathfinder<Map: Pathfindable> {
     }
 }
 
-// MARK: - Helper
-private extension AStarPathfinder {
-    
-    private func fullPath(from currentNode: PathNode) -> [Coordinate] {
-        var result: [Coordinate] = []
-        var node: PathNode? = currentNode
-        while let n = node {
-            result.append(n.coordinate)
-            node = n.parent
-        }
-        return Array(result.reversed())
+// MARK: - Preset
+public extension AStarPathfinder where Cost == Int {
+
+    static func distances(_ nextStates: @escaping (State) -> [StateCost]) -> AStarPathfinder<State, Int> {
+        return .init(nextStates: nextStates)
     }
 }
-
-

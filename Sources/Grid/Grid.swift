@@ -48,6 +48,11 @@ public struct Grid<Element> {
     public var rows: Range<Int> { return 0..<rowCount }
     public func columns(forRow row: Int) -> Range<Int> { return 0..<columnCount(forRow: row) }
 
+    public var topLeft: Coordinate { return .zero }
+    public var topRight: Coordinate { return .init(row: 0, column: lastColumnIndex(forRow: 0)) }
+    public var bottomLeft: Coordinate  { return .init(row: lastRowIndex, column: 0) }
+    public var bottomRight: Coordinate  { return .init(row: lastRowIndex, column: lastColumnIndex(forRow: lastRowIndex)) }
+
     public var allCoordinates: [Coordinate] {
         return rows.flatMap { row in
             columns(forRow: row).map { Coordinate(row: row, column: $0) }

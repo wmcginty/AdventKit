@@ -16,39 +16,37 @@ final class AStarPathfindingTests: XCTestCase {
         ....
         ....
         """
-    
-    struct StringGrid: Pathfindable {
-        let grid: Grid<String>
-        
-        public func neighbors(for coordinate: Coordinate, moving direction: Coordinate.Direction?) -> Set<Coordinate> {
-            return coordinate.neighbors(in: .cardinal)
-        }
-    }
-    
+
     func testSimpleAStar() {
-        let contents = basicGrid.lines().map { $0.map(String.init) }
-        let stringGrid = StringGrid(grid: .init(contents: contents))
-        let pathfinder = AStarPathfinder(map: stringGrid)
-        let shortestPath = pathfinder.shortestPath(from: .init(x: 0, y: 0),
-                                                   to: .init(row: stringGrid.grid.lastRowIndex,
-                                                             column: stringGrid.grid.lastColumnIndex(forRow: 0)))
-        
-        print(stringGrid.grid.description { c, _ in
-            return shortestPath?.contains(c) == true ? "X" : nil
-        })
-        
-        XCTAssertEqual(shortestPath?.count, 7)
-        XCTAssertTrue(shortestPath?.contains(.init(x: 0, y: 0)) == true)
-        XCTAssertTrue(shortestPath?.contains(.init(x: 3, y: 3)) == true)
+        let contents = basicGrid.lines().map { $0.map { String($0) } }
+        let grid = Grid(contents: contents)
+        let pathfinder = AStarPathfinder.distances { (currentState: Coordinate) in
+            let validDirections: [Coordinate.Direction] = .cardinal
+            return validDirections.compactMap { direction in
+                let nextCoordinate = currentState.neighbor(in: direction)
+
+                guard grid.dictionary[nextCoordinate] != nil else { return nil }
+                return .init(state: nextCoordinate, cost: 1)
+            }
+        }
+
+        let target = grid.bottomRight
+        let shortestPath = pathfinder.shortestPath(from: .zero, toTargets: [target]) {
+            return $0.manhattanDistance(to: target)
+        }
+
+        print(grid.description(of: shortestPath, displayedWith: "X"))
+        XCTAssertEqual(shortestPath?.overallCost, 6)
+        XCTAssertEqual(shortestPath?.states.count, 7)
     }
-    
+
     let weightedGrid = """
         1222
         1222
         1222
         1111
         """
-    
+
     let stronglyWeightedGrid = """
         19111
         19191
@@ -56,50 +54,100 @@ final class AStarPathfindingTests: XCTestCase {
         11191
         """
 
-    struct IntGrid: Pathfindable {
-        let grid: Grid<Int>
-        
-        public func neighbors(for coordinate: Coordinate, moving direction: Coordinate.Direction?) -> Set<Coordinate> {
-            return coordinate.neighbors(in: .cardinal)
-                .filter { grid.contents(at: $0) != nil }
-        }
-        
-        public func costToMove(from: Coordinate, to: Coordinate) -> Int {
-            grid[to]
-        }
-    }
-
     func testWeightedAStar() {
         let contents = weightedGrid.lines().map { $0.map { Int(String($0))! } }
-        let intGrid = IntGrid(grid: .init(contents: contents))
-        let pathfinder = AStarPathfinder(map: intGrid)
-        let shortestPath = pathfinder.shortestPath(from: .init(x: 0, y: 0),
-                                                   to: .init(row: intGrid.grid.lastRowIndex,
-                                                             column: intGrid.grid.lastColumnIndex(forRow: 0)))
-        
-        print(intGrid.grid.description { c, _ in
-            return shortestPath?.contains(c) == true ? "X" : nil
-        })
-        
-        XCTAssertEqual(shortestPath?.count, 7)
-        XCTAssertTrue(shortestPath?.contains(.init(x: 0, y: 0)) == true)
-        XCTAssertTrue(shortestPath?.contains(.init(x: 3, y: 3)) == true)
+        let grid = Grid(contents: contents)
+        let pathfinder = AStarPathfinder.distances { (currentState: Coordinate) in
+            let validDirections: [Coordinate.Direction] = .cardinal
+            return validDirections.compactMap { direction in
+                let nextCoordinate = currentState.neighbor(in: direction)
+
+                guard let cost = grid.contents(at: nextCoordinate) else { return nil }
+                return .init(state: nextCoordinate, cost: cost)
+            }
+        }
+
+        let target = grid.bottomRight
+        let shortestPath = pathfinder.shortestPath(from: .zero, toTargets: [target]) {
+            return $0.manhattanDistance(to: target)
+        }
+
+        print(grid.description(of: shortestPath, displayedWith: "."))
+        XCTAssertEqual(shortestPath?.overallCost, 6)
+        XCTAssertEqual(shortestPath?.states.count, 7)
     }
-    
-    func testStronglyWeightedAStar() {
+
+    func testStronglytWeightedAStar() {
         let contents = stronglyWeightedGrid.lines().map { $0.map { Int(String($0))! } }
-        let intGrid = IntGrid(grid: .init(contents: contents))
-        let pathfinder = AStarPathfinder(map: intGrid)
-        let shortestPath = pathfinder.shortestPath(from: .init(x: 0, y: 0),
-                                                   to: .init(row: intGrid.grid.lastRowIndex,
-                                                             column: intGrid.grid.lastColumnIndex(forRow: 0)))
-        
-        print(intGrid.grid.description { c, _ in
-            return shortestPath?.contains(c) == true ? "X" : nil
-        })
-        
-        XCTAssertEqual(shortestPath?.count, 14)
-        XCTAssertTrue(shortestPath?.contains(.init(x: 0, y: 0)) == true)
-        XCTAssertTrue(shortestPath?.contains(.init(x: 4, y: 3)) == true)
+        let grid = Grid(contents: contents)
+        let pathfinder = AStarPathfinder.distances { (currentState: Coordinate) in
+            let validDirections: [Coordinate.Direction] = .cardinal
+            return validDirections.compactMap { direction in
+                let nextCoordinate = currentState.neighbor(in: direction)
+
+                guard let cost = grid.contents(at: nextCoordinate) else { return nil }
+                return .init(state: nextCoordinate, cost: cost)
+            }
+        }
+
+        let target = grid.bottomRight
+        let shortestPath = pathfinder.shortestPath(from: .zero, toTargets: [target]) {
+            return $0.manhattanDistance(to: target)
+        }
+
+        print(grid.description(of: shortestPath, displayedWith: "."))
+        XCTAssertEqual(shortestPath?.overallCost, 13)
+        XCTAssertEqual(shortestPath?.states.count, 14)
+    }
+
+    let complexWeightedGrid = """
+        2413432311323
+        3215453535623
+        3255245654254
+        3446585845452
+        4546657867536
+        1438598798454
+        4457876987766
+        3637877979653
+        4654967986887
+        4564679986453
+        1224686865563
+        2546548887735
+        4322674655533
+        """
+
+    func testComplexWeightedAStar() {
+        struct State: Hashable {
+            let coordinate: Coordinate
+            let direction: Coordinate.Direction?
+            let consecutiveInDirection: Int
+        }
+
+        let contents = complexWeightedGrid.lines().map { $0.map { Int(String($0))! } }
+        let grid = Grid(contents: contents)
+        let pathfinder = AStarPathfinder.distances { (currentState: State) in
+            let validDirections: [Coordinate.Direction] = .cardinal.filter { $0 != currentState.direction?.inverse }
+            return validDirections.compactMap { direction in
+                let nextCoordinate = currentState.coordinate.neighbor(in: direction)
+                let newDirection = direction
+                let newConsecutive = newDirection == currentState.direction ? currentState.consecutiveInDirection + 1 : 1
+                let isValid = newConsecutive <= 3
+
+                guard let cost = grid.contents(at: nextCoordinate), isValid else { return nil }
+                return .init(state: .init(coordinate: nextCoordinate, direction: newDirection, consecutiveInDirection: newConsecutive), cost: cost)
+            }
+        }
+
+        let target = grid.bottomRight
+        let shortestPath = pathfinder.shortestPath(from: .init(coordinate: .zero, direction: nil, consecutiveInDirection: 0),
+                                                   toTarget: { $0.coordinate == target }) {
+            return $0.coordinate.manhattanDistance(to: target)
+        }
+
+        print(grid.description(of: shortestPath, displayedWith: ".", convertedBy: { $0.coordinate }))
+        XCTAssertEqual(shortestPath?.overallCost, 102)
+        XCTAssertEqual(shortestPath?.states.count, 29)
+        XCTAssertTrue(shortestPath?.states.map(\.coordinate).contains(.init(x: 5, y: 0)) == true)
+        XCTAssertTrue(shortestPath?.states.map(\.coordinate).contains(.init(x: 12, y: 10)) == true)
     }
 }

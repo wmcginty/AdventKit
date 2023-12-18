@@ -7,156 +7,107 @@
 
 import Foundation
 
-struct DijkstraPathfinder<State: Hashable> {
+public struct DijkstraPathfinder<State: Hashable, Cost: Numeric & Comparable> {
 
-//    private final class PathNode: Comparable, CustomStringConvertible {
-//
-//        // MARK: - Coordinates
-//        let state: State
-//        let parent: PathNode?
-//
-//        let distance: Int // Distance from start to node
-//
-//        // MARK: - Initializer
-//        init(state: Coordinate, parent: PathNode? = nil, moveCost: Int = 0, hScore: Int = 0) {
-//            self.coordinate = coordinate
-//            self.parent = parent
-//            self.gScore = (parent?.gScore ?? 0) + moveCost
-//            self.hScore = hScore
-//        }
-//
-//        static func == (lhs: PathNode, rhs: PathNode) -> Bool {
-//            lhs.coordinate == rhs.coordinate
-//        }
-//
-//        static func < (lhs: PathNode, rhs: PathNode) -> Bool {
-//            lhs.fScore < rhs.fScore
-//        }
-//
-//        // MARK: - CustomStringConvertible
-//        var description: String {
-//            "pos=\(coordinate) g=\(gScore) h=\(hScore) f=\(fScore)"
-//        }
-//    }
+    public struct StateCost {
 
-    struct Distanced: Comparable, Hashable {
+        // MARK: - Properties
+        public let state: State
+        public let cost: Cost
+    }
+
+    private final class PathNode: Comparable, CustomStringConvertible {
+
+        // MARK: - Coordinates
         let state: State
-        let distance: Int
+        let parent: PathNode?
+        let cost: Cost // Cost of traveling to this node
 
-        public static func < (lhs: Distanced, rhs: Distanced) -> Bool {
-            return lhs.distance < rhs.distance
+        // MARK: - Initializer
+        init(state: State, parent: PathNode? = nil, cost: Cost) {
+            self.state = state
+            self.parent = parent
+            self.cost = (parent?.cost ?? 0) + cost
+        }
+
+        // MARK: - Interface
+        var fullPath: Path {
+            var result: [PathNode] = []
+            var node: PathNode? = self
+            while let n = node {
+                result.append(n)
+                node = n.parent
+            }
+
+            return Path(stateCosts: result.reversed().map { .init(state: $0.state, cost: $0.cost) })
+        }
+
+        // MARK: - Equatable
+        static func == (lhs: PathNode, rhs: PathNode) -> Bool {
+            lhs.state == rhs.state
+        }
+
+        // MARK: - Comparable
+        static func < (lhs: PathNode, rhs: PathNode) -> Bool {
+            lhs.cost < rhs.cost
+        }
+
+        // MARK: - CustomStringConvertible
+        var description: String {
+            "state=\(state) cost=\(cost)"
         }
     }
 
-    struct StateCost {
-        let state: State
-        let cost: Int
-    }
-
     // MARK: - Properties
-    let nextStateGenerator: (State) -> [StateCost]
+    public let nextStateGenerator: (State) -> [StateCost]
 
     // MARK: - Initializer
-    init(nextStates: @escaping (State) -> [StateCost]) {
+    public init(nextStates: @escaping (State) -> [StateCost]) {
         self.nextStateGenerator = nextStates
     }
 
     // MARK: - Interface
-    func shortestPath(from initialState: State, toTarget targetPredicate: (State) -> Bool) -> Int? {
-        var dictionary: Dictionary<State, Int> = [:]
-        var priorityQueue = Heap<Distanced>([.init(state: initialState, distance: 0)])
+    public func shortestCost(from initialState: State, toTargets targetStates: [State]) -> Cost? {
+        return shortestPath(from: initialState, toTargets: targetStates)?.overallCost
+    }
+
+    public func shortestCost(from initialState: State, toTarget targetPredicate: (State) -> Bool) -> Cost? {
+        return shortestPath(from: initialState, toTarget: targetPredicate)?.overallCost
+    }
+
+    public func shortestPath(from initialState: State, toTargets targetStates: [State]) -> Path? {
+        return shortestPath(from: initialState, toTarget: { targetStates.contains($0) })
+    }
+
+    public func shortestPath(from initialState: State, toTarget targetPredicate: (State) -> Bool) -> Path? {
+        var visited: Set<State> = []
+        var priorityQueue = Heap<PathNode>([.init(state: initialState, parent: nil, cost: 0)])
 
         while let next = priorityQueue.popMin() {
-            if dictionary[next.state] != nil {
+            if visited.contains(next.state) {
                 continue  // We already have a distance for this state, we can skip re-computation
             }
-            dictionary[next.state] = next.distance
+            visited.insert(next.state)
 
             if targetPredicate(next.state) {
-                return next.distance
+                return next.fullPath
             }
 
             for stateCost in nextStateGenerator(next.state) {
-                priorityQueue.insert(.init(state: stateCost.state, distance: next.distance + stateCost.cost))
+                assert(stateCost.cost >= 0, "Negative costs are disallowed.")
+                priorityQueue.insert(.init(state: stateCost.state, parent: next, cost: stateCost.cost))
             }
         }
 
         return nil
     }
-
-
 }
 
-//extension Grid<Int> {
-//
-//    struct State: Hashable {
-//        let coordinate: Coordinate
-//        let direction: Coordinate.Direction?
-//        let consecutiveInDirection: Int
-//    }
-//
-//    struct Distanced<T: Hashable>: Comparable, Hashable {
-//        let state: T
-//        let distance: Int
-//
-//        public static func < (lhs: Distanced, rhs: Distanced) -> Bool {
-//            return lhs.distance < rhs.distance
-//        }
-//    }
-//
-//    func minimumHeatLoss(from coordinate: Coordinate, to target: Coordinate, part1: Bool) -> Int? {
-//        var dictionary: Dictionary<State, Int> = [:]
-//        var priorityQueue = Heap<Distanced<State>>([.init(state: .init(coordinate: coordinate,
-//                                                                       direction: nil,
-//                                                                       consecutiveInDirection: 0),
-//                                                          distance: 0)])
-//
-//        while let next = priorityQueue.popMin() {
-//            if dictionary[next.state] != nil {
-//                continue  // We already have a distance for this state, we can skip re-computation
-//            }
-//            dictionary[next.state] = next.distance
-//
-//            if next.state.coordinate == target {
-//                return next.distance
-//            }
-//
-//            let validDirections: [Coordinate.Direction] = .cardinal.filter { $0 != next.state.direction?.inverse }
-//            for direction in validDirections {
-//                let nextCoordinate = next.state.coordinate.neighbor(in: direction)
-//                let newDirection = direction
-//                let newConsecutive = newDirection == next.state.direction ? next.state.consecutiveInDirection + 1 : 1
-//
-//                var isValid: Bool
-//                if part1 {
-//                    isValid = newConsecutive <= 3
-//                } else {
-//                    isValid = newConsecutive <= 10 && (newDirection == next.state.direction || next.state.consecutiveInDirection >= 4 || next.state.consecutiveInDirection == 0)
-//                }
-//
-//                if let cost = grid.contents(at: nextCoordinate), isValid {
-//                    priorityQueue.insert(.init(state: .init(coordinate: nextCoordinate,
-//                                                            direction: newDirection,
-//                                                            consecutiveInDirection: newConsecutive),
-//                                               distance: next.distance + cost))
-//                }
-//            }
-//        }
-//
-//        return nil
-//    }
-//}
-//
-//let lines = String.input.lines()
-//let contents = lines.map { $0.map( { Int(String($0))! }) }
-//let grid = Grid(contents: contents)
-//
-//measure(part: .one) { logger in
-//    /* Part One */
-//    return grid.minimumHeatLoss(from: .zero, to: .init(row: grid.lastRowIndex, column: grid.lastColumnIndex(forRow: 0)), part1: true) ?? 0
-//}
-//
-//measure(part: .two) { logger in
-//    /* Part Two */
-//    return grid.minimumHeatLoss(from: .zero, to: .init(row: grid.lastRowIndex, column: grid.lastColumnIndex(forRow: 0)), part1: false) ?? 0
-//}
+// MARK: - Preset
+public extension DijkstraPathfinder where Cost == Int {
+
+    static func distances(_ nextStates: @escaping (State) -> [StateCost]) -> DijkstraPathfinder<State, Int> {
+        return .init(nextStates: nextStates)
+    }
+}
+
