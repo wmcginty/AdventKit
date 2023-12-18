@@ -79,15 +79,19 @@ public class AStarPathfinder<State: Hashable, Cost: Numeric & Comparable> {
     }
 
     // MARK: - Interface
-    public func shortestPath(from initialState: State, 
-                             toTargets targetStates: [State],
-                             heuristic: (State) -> Cost) -> Path? {
+    public func shortestCost(from initialState: State, toTargets targetStates: [State], heuristic: (State) -> Cost) -> Cost? {
+        return shortestPath(from: initialState, toTarget: { targetStates.contains($0) }, heuristic: heuristic)?.overallCost
+    }
+
+    public func shortestPath(from initialState: State, toTargets targetStates: [State], heuristic: (State) -> Cost) -> Path? {
         return shortestPath(from: initialState, toTarget: { targetStates.contains($0) }, heuristic: heuristic)
     }
 
-    public func shortestPath(from initialState: State, 
-                             toTarget targetPredicate: (State) -> Bool,
-                             heuristic: (State) -> Cost) -> Path? {
+    public func shortestCost(from initialState: State, toTarget targetPredicate: (State) -> Bool, heuristic: (State) -> Cost) -> Cost? {
+        return shortestPath(from: initialState, toTarget: targetPredicate, heuristic: heuristic)?.overallCost
+    }
+
+    public func shortestPath(from initialState: State, toTarget targetPredicate: (State) -> Bool, heuristic: (State) -> Cost) -> Path? {
         let initialStateHeuristic = heuristic(initialState)
         var priorityQueue = Heap<PathNode>([.init(state: initialState, heuristicCost: initialStateHeuristic)])
         var explored: [State: Cost] = [initialState: 0]
