@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import OSLog
+@_exported import OSLog
 @_exported import Collections
 
 public enum Part {
