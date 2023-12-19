@@ -10,13 +10,7 @@ import Collections
 
 public class AStarPathfinder<State: Hashable, Cost: Numeric & Comparable> {
 
-    public struct StateCost {
-
-        // MARK: - Properties
-        public let state: State
-        public let cost: Cost
-    }
-
+    public typealias StateCost = DijkstraPathfinder<State, Cost>.StateCost
     public typealias Path = DijkstraPathfinder<State, Cost>.Path
 
     private final class PathNode: Comparable, CustomStringConvertible {

@@ -8,6 +8,19 @@
 import Foundation
 
 public extension DijkstraPathfinder {
+    
+    struct StateCost {
+
+        // MARK: - Properties
+        public let state: State
+        public let cost: Cost
+        
+        // MARK: - Initializer
+        public init(state: State, cost: Cost) {
+            self.state = state
+            self.cost = cost
+        }
+    }
 
     struct Path {
 
