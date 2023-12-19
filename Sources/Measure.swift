@@ -6,6 +6,7 @@
 //
 
 import Foundation
+@_exported import os
 @_exported import OSLog
 @_exported import Collections
 
