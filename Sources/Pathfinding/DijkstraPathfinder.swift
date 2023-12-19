@@ -9,13 +9,6 @@ import Foundation
 
 public struct DijkstraPathfinder<State: Hashable, Cost: Numeric & Comparable> {
 
-    public struct StateCost {
-
-        // MARK: - Properties
-        public let state: State
-        public let cost: Cost
-    }
-
     private final class PathNode: Comparable, CustomStringConvertible {
 
         // MARK: - Coordinates
