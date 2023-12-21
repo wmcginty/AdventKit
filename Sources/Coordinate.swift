@@ -47,7 +47,7 @@ public struct Coordinate: Hashable, CustomStringConvertible {
     }
 
     // MARK: - Properties
-    public let x, y: Int
+    public var x, y: Int
 
     // MARK: - Initializers
     public init(x: Int, y: Int) {
