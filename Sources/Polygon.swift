@@ -39,6 +39,7 @@ public struct Polygon {
 
         return a - (p / 2) + 1
     }
+    
     public func sumOfBoundaryAndInteriorLatticePoints() -> Int {
         let p = Int(perimeter())
         let a = Int(shoelaceArea())
