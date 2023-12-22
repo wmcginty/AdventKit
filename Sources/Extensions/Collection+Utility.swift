@@ -9,10 +9,14 @@ import Foundation
 
 public extension Array {
     
-    func sorted<T: Comparable>(by keyPath: KeyPath<Element, T>) -> Self {
-        return self.sorted { $0[keyPath: keyPath] < $1[keyPath: keyPath] }
+    mutating func sort<T: Comparable>(by keyPath: KeyPath<Element, T>) {
+        sort { $0[keyPath: keyPath] < $1[keyPath: keyPath] }
     }
-
+    
+    func sorted<T: Comparable>(by keyPath: KeyPath<Element, T>) -> Self {
+        return sorted { $0[keyPath: keyPath] < $1[keyPath: keyPath] }
+    }
+    
     func min<T: Comparable>(by keyPath: KeyPath<Element, T>) -> Element? {
         return self.min(by: { $0[keyPath: keyPath] < $1[keyPath: keyPath] })
     }
