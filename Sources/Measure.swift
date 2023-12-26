@@ -25,9 +25,32 @@ public enum Part {
 private extension Logger {
     private static var subsystem = "com.wmcginty.adventkit"
     static let measurements = Logger(subsystem: subsystem, category: "measurements")
+    
+    func formatAnswer<T: CustomStringConvertible>(_ answer: T?, for part: Part, foundAfter duration: Duration) {
+        if let answer {
+            critical("Finished \(part.title) [\(duration.formatElapsed())]. Answer: \(answer)")
+        } else {
+            critical("Finished \(part.title) [\(duration.formatElapsed())]. Answer not found.")
+        }
+    }
 }
 
-public func measure<T: CustomStringConvertible>(part: Part, _ closure: @escaping () throws -> T) rethrows {
+private extension Duration.UnitsFormatStyle {
+    static let underMinute = Duration.UnitsFormatStyle(allowedUnits: [.nanoseconds, .microseconds, .milliseconds, .seconds, .minutes],
+                                                       width: .narrow, maximumUnitCount: 1, fractionalPart: .show(length: 3))
+    
+    static let overMinute = Duration.UnitsFormatStyle(allowedUnits: [.nanoseconds, .microseconds, .milliseconds, .seconds, .minutes],
+                                                      width: .narrow, maximumUnitCount: 2, fractionalPart: .show(length: 3))
+}
+
+private extension Duration {
+    
+    func formatElapsed() -> String {
+        return self.formatted(self > .seconds(60) ? Duration.UnitsFormatStyle.overMinute : .underMinute)
+    }
+}
+
+public func measure<T: CustomStringConvertible>(part: Part, _ closure: @escaping () throws -> T?) rethrows {
     let start = Date()
     let logger = Logger.measurements
 
@@ -35,12 +58,10 @@ public func measure<T: CustomStringConvertible>(part: Part, _ closure: @escaping
     let answer = try closure()
     let end = Date()
     let elapsed: Duration = .milliseconds(end.timeIntervalSince(start) * 1000)
-    let formatStyle = Duration.UnitsFormatStyle(allowedUnits: [.nanoseconds, .microseconds, .milliseconds, .seconds, .minutes],
-                                                width: .narrow, maximumUnitCount: 1, fractionalPart: .show(length: 3))
-    logger.critical("Finished \(part.title) [\(elapsed.formatted(formatStyle))]. Answer: \(answer)")
+    logger.formatAnswer(answer, for: part, foundAfter: elapsed)
 }
 
-public func measure<T: CustomStringConvertible>(part: Part, _ closure: @escaping (Logger) throws -> T) rethrows {
+public func measure<T: CustomStringConvertible>(part: Part, _ closure: @escaping (Logger) throws -> T?) rethrows {
     let start = Date()
     let logger = Logger.measurements
 
@@ -48,9 +69,7 @@ public func measure<T: CustomStringConvertible>(part: Part, _ closure: @escaping
     let answer = try closure(logger)
     let end = Date()
     let elapsed: Duration = .milliseconds(end.timeIntervalSince(start) * 1000)
-    let formatStyle = Duration.UnitsFormatStyle(allowedUnits: [.nanoseconds, .microseconds, .milliseconds, .seconds, .minutes],
-                                                width: .narrow, maximumUnitCount: 1, fractionalPart: .show(length: 3))
-    logger.critical("Finished \(part.title) [\(elapsed.formatted(formatStyle))]. Answer: \(answer)")
+    logger.formatAnswer(answer, for: part, foundAfter: elapsed)
 }
 
 public func measure(part: Part, _ closure: @escaping (Logger) throws -> Void) rethrows {
@@ -61,7 +80,5 @@ public func measure(part: Part, _ closure: @escaping (Logger) throws -> Void) re
     try closure(logger)
     let end = Date()
     let elapsed: Duration = .milliseconds(end.timeIntervalSince(start) * 1000)
-    let formatStyle = Duration.UnitsFormatStyle(allowedUnits: [.nanoseconds, .microseconds, .milliseconds, .seconds, .minutes],
-                                                width: .narrow, maximumUnitCount: 1, fractionalPart: .show(length: 3))
-    logger.critical("Finished \(part.title) [\(elapsed.formatted(formatStyle))].")
+    logger.critical("Finished \(part.title) [\(elapsed.formatElapsed())].")
 }
