@@ -40,7 +40,7 @@ private extension Duration.UnitsFormatStyle {
                                                        width: .narrow, maximumUnitCount: 1, fractionalPart: .show(length: 3))
     
     static let overMinute = Duration.UnitsFormatStyle(allowedUnits: [.nanoseconds, .microseconds, .milliseconds, .seconds, .minutes],
-                                                      width: .narrow, maximumUnitCount: 2, fractionalPart: .show(length: 3))
+                                                      width: .narrow, maximumUnitCount: 2, fractionalPart: .hide)
 }
 
 private extension Duration {
