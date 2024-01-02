@@ -28,6 +28,10 @@ public struct Grid<Element> {
     public private(set) var dictionary: [Coordinate: Element]
     
     // MARK: - Initializer
+    public init(input: String, transform: (Character) -> Element) {
+        self.init(contents: input.lines().map { $0.map(transform) })
+    }
+
     public init(contents: [[Element]]) {
         self.contents = contents
         self.dictionary = zip(contents.indices, contents).reduce(into: [:], { partialResult, element in
@@ -148,3 +152,4 @@ extension Grid: CustomStringConvertible where Element: CustomStringConvertible {
         return result
     }
 }
+

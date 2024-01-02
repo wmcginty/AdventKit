@@ -26,9 +26,9 @@ private extension Logger {
     private static var subsystem = "com.wmcginty.adventkit"
     static let measurements = Logger(subsystem: subsystem, category: "measurements")
     
-    func formatAnswer<T: CustomStringConvertible>(_ answer: T?, for part: Part, foundAfter duration: Duration) {
+    func formatAnswer<T: CustomStringConvertible>(_ answer: T?, for part: Part, foundAfter duration: Duration, splitToNewLine: Bool) {
         if let answer {
-            critical("Finished \(part.title) [\(duration.formatElapsed())]. Answer: \(answer)")
+            critical("Finished \(part.title) [\(duration.formatElapsed())]. Answer:\(splitToNewLine ? "\n" : " ")\(answer)")
         } else {
             critical("Finished \(part.title) [\(duration.formatElapsed())]. Answer not found.")
         }
@@ -50,7 +50,7 @@ private extension Duration {
     }
 }
 
-public func measure<T: CustomStringConvertible>(part: Part, _ closure: @escaping () throws -> T?) rethrows {
+public func measure<T: CustomStringConvertible>(part: Part, splitAnswerToNewline: Bool = false, _ closure: @escaping () throws -> T?) rethrows {
     let start = Date()
     let logger = Logger.measurements
 
@@ -58,10 +58,10 @@ public func measure<T: CustomStringConvertible>(part: Part, _ closure: @escaping
     let answer = try closure()
     let end = Date()
     let elapsed: Duration = .milliseconds(end.timeIntervalSince(start) * 1000)
-    logger.formatAnswer(answer, for: part, foundAfter: elapsed)
+    logger.formatAnswer(answer, for: part, foundAfter: elapsed, splitToNewLine: splitAnswerToNewline)
 }
 
-public func measure<T: CustomStringConvertible>(part: Part, _ closure: @escaping (Logger) throws -> T?) rethrows {
+public func measure<T: CustomStringConvertible>(part: Part, splitAnswerToNewline: Bool = false, _ closure: @escaping (Logger) throws -> T?) rethrows {
     let start = Date()
     let logger = Logger.measurements
 
@@ -69,7 +69,7 @@ public func measure<T: CustomStringConvertible>(part: Part, _ closure: @escaping
     let answer = try closure(logger)
     let end = Date()
     let elapsed: Duration = .milliseconds(end.timeIntervalSince(start) * 1000)
-    logger.formatAnswer(answer, for: part, foundAfter: elapsed)
+    logger.formatAnswer(answer, for: part, foundAfter: elapsed, splitToNewLine: splitAnswerToNewline)
 }
 
 public func measure(part: Part, _ closure: @escaping (Logger) throws -> Void) rethrows {
