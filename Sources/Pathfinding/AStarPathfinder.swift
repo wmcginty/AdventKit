@@ -73,11 +73,11 @@ public class AStarPathfinder<State: Hashable, Cost: Numeric & Comparable> {
     }
 
     // MARK: - Interface
-    public func shortestCost(from initialState: State, toTargets targetStates: [State], heuristic: (State) -> Cost) -> Cost? {
+    public func shortestCost(from initialState: State, toPossibleTargets targetStates: [State], heuristic: (State) -> Cost) -> Cost? {
         return shortestPath(from: initialState, toTarget: { targetStates.contains($0) }, heuristic: heuristic)?.overallCost
     }
 
-    public func shortestPath(from initialState: State, toTargets targetStates: [State], heuristic: (State) -> Cost) -> Path? {
+    public func shortestPath(from initialState: State, toPossibleTargets targetStates: [State], heuristic: (State) -> Cost) -> Path? {
         return shortestPath(from: initialState, toTarget: { targetStates.contains($0) }, heuristic: heuristic)
     }
 
@@ -120,6 +120,20 @@ public class AStarPathfinder<State: Hashable, Cost: Numeric & Comparable> {
         }
 
         return nil
+    }
+}
+
+// MARK: - Manhattan AStar
+public extension AStarPathfinder where State == Coordinate, Cost == Int {
+
+    func shortestManhattanCost(from initialState: State, toPossibleTargets targetStates: [State]) -> Cost? {
+        return shortestManhattanPath(from: initialState, toPossibleTargets: targetStates)?.overallCost
+    }
+
+    func shortestManhattanPath(from initialState: State, toPossibleTargets targetStates: [State]) -> Path? {
+        return shortestPath(from: initialState, toPossibleTargets: targetStates) { state in
+            return targetStates.map { state.manhattanDistance(to: $0) }.min() ?? 1
+        }
     }
 }
 

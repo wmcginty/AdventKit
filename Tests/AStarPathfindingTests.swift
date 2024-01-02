@@ -18,8 +18,7 @@ final class AStarPathfindingTests: XCTestCase {
         """
 
     func testSimpleAStar() {
-        let contents = basicGrid.lines().map { $0.map { String($0) } }
-        let grid = Grid(contents: contents)
+        let grid = Grid(input: basicGrid, transform: String.init)
         let pathfinder = AStarPathfinder.distances { (currentState: Coordinate) in
             let validDirections: [Coordinate.Direction] = .cardinal
             return validDirections.compactMap { direction in
@@ -31,7 +30,7 @@ final class AStarPathfindingTests: XCTestCase {
         }
 
         let target = grid.bottomRight
-        let shortestPath = pathfinder.shortestPath(from: .zero, toTargets: [target]) {
+        let shortestPath = pathfinder.shortestPath(from: .zero, toPossibleTargets: [target]) {
             return $0.manhattanDistance(to: target)
         }
 
@@ -55,8 +54,7 @@ final class AStarPathfindingTests: XCTestCase {
         """
 
     func testWeightedAStar() {
-        let contents = weightedGrid.lines().map { $0.map { Int(String($0))! } }
-        let grid = Grid(contents: contents)
+        let grid = Grid(input: weightedGrid, transform: { Int(String($0))! })
         let pathfinder = AStarPathfinder.distances { (currentState: Coordinate) in
             let validDirections: [Coordinate.Direction] = .cardinal
             return validDirections.compactMap { direction in
@@ -68,7 +66,7 @@ final class AStarPathfindingTests: XCTestCase {
         }
 
         let target = grid.bottomRight
-        let shortestPath = pathfinder.shortestPath(from: .zero, toTargets: [target]) {
+        let shortestPath = pathfinder.shortestPath(from: .zero, toPossibleTargets: [target]) {
             return $0.manhattanDistance(to: target)
         }
 
@@ -77,9 +75,8 @@ final class AStarPathfindingTests: XCTestCase {
         XCTAssertEqual(shortestPath?.states.count, 7)
     }
 
-    func testStronglytWeightedAStar() {
-        let contents = stronglyWeightedGrid.lines().map { $0.map { Int(String($0))! } }
-        let grid = Grid(contents: contents)
+    func testStronglyWeightedAStar() {
+        let grid = Grid(input: stronglyWeightedGrid, transform: { Int(String($0))! })
         let pathfinder = AStarPathfinder.distances { (currentState: Coordinate) in
             let validDirections: [Coordinate.Direction] = .cardinal
             return validDirections.compactMap { direction in
@@ -91,9 +88,29 @@ final class AStarPathfindingTests: XCTestCase {
         }
 
         let target = grid.bottomRight
-        let shortestPath = pathfinder.shortestPath(from: .zero, toTargets: [target]) {
+        let shortestPath = pathfinder.shortestPath(from: .zero, toPossibleTargets: [target]) {
             return $0.manhattanDistance(to: target)
         }
+
+        print(grid.description(of: shortestPath, displayedWith: "."))
+        XCTAssertEqual(shortestPath?.overallCost, 13)
+        XCTAssertEqual(shortestPath?.states.count, 14)
+    }
+
+    func testStronglyWeightedAStarWithManhattanDefault() {
+        let grid = Grid(input: stronglyWeightedGrid, transform: { Int(String($0))! })
+        let pathfinder = AStarPathfinder.distances { (currentState: Coordinate) in
+            let validDirections: [Coordinate.Direction] = .cardinal
+            return validDirections.compactMap { direction in
+                let nextCoordinate = currentState.neighbor(in: direction)
+
+                guard let cost = grid.contents(at: nextCoordinate) else { return nil }
+                return .init(state: nextCoordinate, cost: cost)
+            }
+        }
+
+        let target = grid.bottomRight
+        let shortestPath = pathfinder.shortestManhattanPath(from: .zero, toPossibleTargets: [target])
 
         print(grid.description(of: shortestPath, displayedWith: "."))
         XCTAssertEqual(shortestPath?.overallCost, 13)
@@ -123,8 +140,7 @@ final class AStarPathfindingTests: XCTestCase {
             let consecutiveInDirection: Int
         }
 
-        let contents = complexWeightedGrid.lines().map { $0.map { Int(String($0))! } }
-        let grid = Grid(contents: contents)
+        let grid = Grid(input: complexWeightedGrid, transform: { Int(String($0))! })
         let pathfinder = AStarPathfinder.distances { (currentState: State) in
             let validDirections: [Coordinate.Direction] = .cardinal.filter { $0 != currentState.direction?.inverse }
             return validDirections.compactMap { direction in

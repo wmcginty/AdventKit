@@ -60,15 +60,15 @@ public struct DijkstraPathfinder<State: Hashable, Cost: Numeric & Comparable> {
     }
 
     // MARK: - Interface
-    public func shortestCost(from initialState: State, toTargets targetStates: [State]) -> Cost? {
-        return shortestPath(from: initialState, toTargets: targetStates)?.overallCost
+    public func shortestCost(from initialState: State, toPossibleTargets targetStates: [State]) -> Cost? {
+        return shortestPath(from: initialState, toPossibleTargets: targetStates)?.overallCost
     }
 
     public func shortestCost(from initialState: State, toTarget targetPredicate: (State) -> Bool) -> Cost? {
         return shortestPath(from: initialState, toTarget: targetPredicate)?.overallCost
     }
 
-    public func shortestPath(from initialState: State, toTargets targetStates: [State]) -> Path? {
+    public func shortestPath(from initialState: State, toPossibleTargets targetStates: [State]) -> Path? {
         return shortestPath(from: initialState, toTarget: { targetStates.contains($0) })
     }
 

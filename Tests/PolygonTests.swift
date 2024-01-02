@@ -25,8 +25,13 @@ final class PolygonTests: XCTestCase {
         XCTAssertEqual(polygon.shoelaceArea(), 42)
     }
 
-    func testPolygon_latticePoints() {
+    func testPolygon_interiorLatticePoints() {
         let polygon = Polygon(vertices: sampleCoordinates)
-        XCTAssertEqual(polygon.interiorLatticePoints(), 62)
+        XCTAssertEqual(polygon.interiorLatticePoints(), 24)
+    }
+
+    func testPolygon_sumOfBoundaryAndInteriorLatticePoints() {
+        let polygon = Polygon(vertices: sampleCoordinates)
+        XCTAssertEqual(polygon.sumOfBoundaryAndInteriorLatticePoints(), 62)
     }
 }

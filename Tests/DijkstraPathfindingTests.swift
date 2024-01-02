@@ -18,8 +18,7 @@ final class DijkstraPathfindingTests: XCTestCase {
         """
 
     func testSimpleDijkstra() {
-        let contents = basicGrid.lines().map { $0.map { String($0) } }
-        let grid = Grid(contents: contents)
+        let grid = Grid(input: basicGrid, transform: String.init)
         let pathfinder = DijkstraPathfinder.distances { (currentState: Coordinate) in
             let validDirections: [Coordinate.Direction] = .cardinal
 
@@ -61,8 +60,7 @@ final class DijkstraPathfindingTests: XCTestCase {
             let consecutiveInDirection: Int
         }
 
-        let contents = weightedGrid.lines().map { $0.map { Int(String($0))! } }
-        let grid = Grid(contents: contents)
+        let grid = Grid(input: weightedGrid, transform: { Int(String($0))! })
         let pathfinder = DijkstraPathfinder<State, Int> { currentState in
             let validDirections: [Coordinate.Direction] = .cardinal.filter { $0 != currentState.direction?.inverse }
             return validDirections.compactMap { direction in

@@ -49,16 +49,16 @@ public struct Coordinate: Hashable, CustomStringConvertible {
     // MARK: - Properties
     public var x, y: Int
 
-    // MARK: - Initializers
+    // MARK: - Initializers    
+    public init(row: Int, column: Int) {
+        self.init(x: column, y: row)
+    }
+
     public init(x: Int, y: Int) {
         self.x = x
         self.y = y
     }
-    
-    public init(row: Int, column: Int) {
-        self.init(x: column, y: row)
-    }
-    
+
     // MARK: - Preset
     public static let zero = Self(x: 0, y: 0)
 
@@ -69,6 +69,7 @@ public struct Coordinate: Hashable, CustomStringConvertible {
     public var description: String { return "\(x),\(y)" }
 }
 
+// MARK: - Distance
 // MARK: - Distance and Movement
 public extension Coordinate {
 
@@ -81,8 +82,44 @@ public extension Coordinate {
         let dY = Double(y - point.y)
         return sqrt(dX * dX + dY * dY)
     }
+}
 
-    func moved(in direction: Direction, amount: Int, xLimit: Range<Int>? = nil, yLimit: Range<Int>? = nil) -> Coordinate {
+// MARK: - Movement
+public extension Coordinate {
+
+    enum HorizontalLimit {
+        case xLimit(Range<Int>)
+
+        // MARK: - Interface
+        public var range: Range<Int> {
+            switch self {
+            case .xLimit(let range): return range
+            }
+        }
+
+        // MARK: - Preset
+        public static func xLimit(_ limit: ClosedRange<Int>) -> HorizontalLimit { return .xLimit(Range(limit)) }
+        public static func columnLimit(_ limit: Range<Int>) -> HorizontalLimit { return .xLimit(limit) }
+        public static func columnLimit(_ limit: ClosedRange<Int>) -> HorizontalLimit { return .xLimit(limit) }
+    }
+
+    enum VerticalLimit {
+        case yLimit(Range<Int>)
+
+        // MARK: - Interface
+        public var range: Range<Int> {
+            switch self {
+            case .yLimit(let range): return range
+            }
+        }
+
+        // MARK: - Preset
+        public static func yLimit(_ limit: ClosedRange<Int>) -> VerticalLimit { return .yLimit(Range(limit)) }
+        public static func rowLimit(_ limit: Range<Int>) -> VerticalLimit { return .yLimit(limit) }
+        public static func rowLimit(_ limit: ClosedRange<Int>) -> VerticalLimit { return .yLimit(limit) }
+    }
+
+    func moved(in direction: Direction, amount: Int, horizontalLimit: HorizontalLimit? = nil, verticalLimit: VerticalLimit? = nil) -> Coordinate {
         let coordinate = {
             switch direction {
             case .north: return Coordinate(x: x, y: y - amount)
@@ -95,12 +132,8 @@ public extension Coordinate {
             case .northWest: return Coordinate(x: x - amount, y: y - amount)
             }
         }()
-        
-        return coordinate.limited(inX: xLimit, y: yLimit)
-    }
-    
-    func moved(in direction: Direction, amount: Int, rowLimit: Range<Int>? = nil, columnLimit: Range<Int>? = nil) -> Coordinate {
-        return moved(in: direction, amount: amount, xLimit: columnLimit, yLimit: rowLimit)
+
+        return coordinate.limited(horizontally: horizontalLimit, vertically: verticalLimit)
     }
 
     func line(to end: Coordinate) -> [Coordinate] {
@@ -109,14 +142,16 @@ public extension Coordinate {
         let range = max(abs(x - end.x), abs(y - end.y))
         return (0..<range).map { Coordinate(x: x + dX * $0, y: y + dY * $0) }
     }
-    
-    func limited(inX xLimit: Range<Int>?, y yLimit: Range<Int>?) -> Coordinate {
-        return Coordinate(x: xLimit.map { min($0.upperBound, max(x,$0.lowerBound)) } ?? x,
-                          y: yLimit.map { min($0.upperBound, max(y,$0.lowerBound)) } ?? y)
-    }
-    
-    func limited(inRow rowLimit: Range<Int>?, column columnLimit: Range<Int>?) -> Coordinate {
-        return limited(inX: columnLimit, y: rowLimit)
+
+    func limited(horizontally hLimit: HorizontalLimit?, vertically yLimit: VerticalLimit?) -> Coordinate {
+        return Coordinate(
+            x: hLimit.map {
+                let range = $0.range
+                return min(range.upperBound - 1, max(x, range.lowerBound)) } ?? x,
+            y: yLimit.map {
+                let range = $0.range
+                return min(range.upperBound - 1, max(y, range.lowerBound)) } ?? y
+        )
     }
 }
 
