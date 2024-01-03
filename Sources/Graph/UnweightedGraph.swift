@@ -111,8 +111,9 @@ extension UnweightedGraph {
         remove(vertex: destinationVertex)
     }
 
-    public func kargersMinimumCut(iterations: Int) -> Int {
+    public func kargersMinimumCut(iterations: Int) -> [UnweightedEdge<Element>] {
         var minCut = Int.max
+        var cutEdges: [UnweightedEdge<Element>] = []
 
         for _ in 0..<iterations {
             // Make a copy of the graph
@@ -121,7 +122,9 @@ extension UnweightedGraph {
             // Keep contracting edges until 2 vertices are left
             while cutGraph.vertexCount > 2 {
                 if let randomEdge = cutGraph.randomEdge {
+
                     cutGraph.contract(edge: randomEdge)
+                    cutEdges.append(randomEdge)
                 }
             }
 
@@ -133,7 +136,7 @@ extension UnweightedGraph {
             }
         }
 
-        return minCut
+        return cutEdges
     }
 }
 
