@@ -113,6 +113,7 @@ extension UnweightedGraph {
 
     public func kargersMinimumCut(iterations: Int) -> Int {
         var minCut = Int.max
+        var minCutGraph = self
 
         for _ in 0..<iterations {
             // Make a copy of the graph
@@ -130,9 +131,11 @@ extension UnweightedGraph {
 
             if cutSize < minCut {
                 minCut = cutSize
+                minCutGraph = cutGraph
             }
         }
 
+        print(minCutGraph)
         return minCut
     }
 }
