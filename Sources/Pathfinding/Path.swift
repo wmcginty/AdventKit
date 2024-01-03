@@ -13,11 +13,13 @@ public extension DijkstraPathfinder {
 
         // MARK: - Properties
         public let state: State
+//        public let incrementalCost: Cost
         public let cost: Cost
         
         // MARK: - Initializer
-        public init(state: State, cost: Cost) {
+        public init(state: State, /*incrementalCost: Cost,*/ cost: Cost) {
             self.state = state
+//            self.incrementalCost = incrementalCost
             self.cost = cost
         }
     }

@@ -11,14 +11,14 @@ import XCTest
 final class GraphTests: XCTestCase {
 
     func testWeightGraphConstruction() {
-        let cityGraph = WeightedGraph<String>()
-        cityGraph.addEdge(.undirected, from: "Seattle", to:"Chicago", weight:2097)
-        cityGraph.addEdge(.undirected, from: "Seattle", to:"Chicago", weight:2097)
+        let cityGraph = WeightedGraph<String, Double>()
+        cityGraph.addEdge(.undirected, from: "Seattle", to: "Chicago", weight:2097)
+        cityGraph.addEdge(.undirected, from: "Seattle", to: "Chicago", weight:2097)
         cityGraph.addEdge(.undirected, from: "Seattle", to: "Denver", weight:1331)
         cityGraph.addEdge(.undirected, from: "Seattle", to: "San Francisco", weight:807)
         cityGraph.addEdge(.undirected, from: "San Francisco", to: "Denver", weight:1267)
         cityGraph.addEdge(.undirected, from: "San Francisco", to: "Los Angeles", weight:381)
-        cityGraph.addEdge(.undirected, from: "Los Angeles", to: "Denver", weight:1015)
+        cityGraph.addEdge(.directed, from: "Los Angeles", to: "Denver", weight:1015)
         cityGraph.addEdge(.undirected, from: "Los Angeles", to: "Kansas City", weight:1663)
         cityGraph.addEdge(.undirected, from: "Los Angeles", to: "Dallas", weight:1435)
         cityGraph.addEdge(.undirected, from: "Denver", to: "Chicago", weight:1003)
@@ -38,6 +38,7 @@ final class GraphTests: XCTestCase {
         cityGraph.addEdge(.undirected, from: "Houston", to: "Dallas", weight:239)
 
         print(cityGraph.description)
+        print(cityGraph.shortestPath(from: "New York", to: "Los Angeles"))
     }
 }
 
