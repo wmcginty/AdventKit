@@ -30,6 +30,11 @@ public struct UnweightedEdge<Element: Hashable>: Edge, Hashable {
         self.source = source
         self.destination = destination
     }
+
+    // MARK: - Interface
+    var reversed: Self {
+        return .init(source: destination, destination: source)
+    }
 }
 
 public struct WeightedEdge<Element: Hashable, Weight: Comparable & Hashable & Numeric>: Edge, Hashable {

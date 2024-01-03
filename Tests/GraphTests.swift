@@ -13,7 +13,6 @@ final class GraphTests: XCTestCase {
     private var simpleGraph: UnweightedGraph = {
         let cityGraph = UnweightedGraph<String>()
         cityGraph.addEdge(.undirected, from: "Seattle", to: "Chicago")
-        cityGraph.addEdge(.undirected, from: "Seattle", to: "Chicago")
         cityGraph.addEdge(.undirected, from: "Seattle", to: "Denver")
         cityGraph.addEdge(.undirected, from: "Seattle", to: "San Francisco")
         cityGraph.addEdge(.undirected, from: "San Francisco", to: "Denver")
@@ -41,7 +40,6 @@ final class GraphTests: XCTestCase {
 
     private var simpleWeightedGraph: WeightedGraph = {
         let cityGraph = WeightedGraph<String, Int>()
-        cityGraph.addEdge(.undirected, from: "Seattle", to: "Chicago", weight: 2097)
         cityGraph.addEdge(.undirected, from: "Seattle", to: "Chicago", weight: 2097)
         cityGraph.addEdge(.undirected, from: "Seattle", to: "Denver", weight: 1331)
         cityGraph.addEdge(.undirected, from: "Seattle", to: "San Francisco", weight: 807)
@@ -99,6 +97,12 @@ final class GraphTests: XCTestCase {
         graph.breadthFirstTraversal(from: "New York") { results.append($0) }
 
         XCTAssertEqual("New York, Kansas City, Chicago, Boston, Atlanta, Los Angeles, Denver, Dallas, Seattle, Houston, Miami, and San Francisco", results.formatted())
+    }
+
+    func testUnweightedGraphEdgeContraction() {
+        let graph = simpleGraph
+//        graph.contract(edge: .init(source: .init(value: "New York"), destination: .init(value: "Boston")))
+        graph.edgeCount
     }
 }
 
