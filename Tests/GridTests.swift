@@ -18,9 +18,9 @@ final class GridTests: XCTestCase {
 
     func testRotateClockwise() {
         let grid: Grid<Int> = .init(contents: [
-        [1, 1, 1, 1],
-        [2, 2, 2, 2],
-        [3, 4, 5, 6]
+            [1, 1, 1, 1],
+            [2, 2, 2, 2],
+            [3, 4, 5, 6]
         ])
 
         let rotated = grid.rotatedClockwise()

@@ -7,10 +7,10 @@
 
 import Foundation
 
-public class WeightedGraph<Element: Hashable, Weight: Comparable & Hashable & Numeric> {
-    
+public class WeightedGraph<Element: Hashable, Weight: Comparable & Hashable & Numeric>: Graph {
+
     // MARK: - Properties
-    private var adjacencyList: [Vertex<Element>: [Edge<Element>.Weighted<Weight>]] = [:]
+    private var adjacencyList: [Vertex<Element>: [WeightedEdge<Element, Weight>]] = [:]
 
     // MARK: - Initializers
     public init() { /* No op */ }
@@ -24,8 +24,8 @@ public class WeightedGraph<Element: Hashable, Weight: Comparable & Hashable & Nu
 
         return vertex
     }
-    
-    public func edges(from source: Vertex<Element>) -> [Edge<Element>.Weighted<Weight>]? {
+
+    public func edges(from source: Vertex<Element>) -> [WeightedEdge<Element, Weight>]? {
         return adjacencyList[source]
     }
 
@@ -35,16 +35,14 @@ public class WeightedGraph<Element: Hashable, Weight: Comparable & Hashable & Nu
         return edges.first { $0.destination == destination }?.weight
     }
     
-   
-
-    public func addEdge(_ kind: Edge<Element>.Kind, from source: Element, to destination: Element, weight: Weight) {
+    public func addEdge(_ kind: WeightedEdge<Element, Weight>.Kind, from source: Element, to destination: Element, weight: Weight) {
         let sourceVertex = vertex(for: source)
         let destinationVertex = vertex(for: destination)
 
         addEdge(kind, from: sourceVertex, to: destinationVertex, weight: weight)
     }
 
-    public func addEdge(_ kind: Edge<Element>.Kind, from source: Vertex<Element>, to destination: Vertex<Element>, weight: Weight) {
+    public func addEdge(_ kind: WeightedEdge<Element, Weight>.Kind, from source: Vertex<Element>, to destination: Vertex<Element>, weight: Weight) {
         switch kind {
         case .directed: addDirectedEdge(from: source, to: destination, weight: weight)
         case .undirected: addUndirectedEdge(from: source, to: destination, weight: weight)
@@ -52,7 +50,7 @@ public class WeightedGraph<Element: Hashable, Weight: Comparable & Hashable & Nu
     }
 }
 
-// MARK: - Search + Pathfinding
+// MARK: - Pathfinding
 public extension WeightedGraph {
     
     func shortestPath(from source: Element, to destination: Element) -> DijkstraPathfinder<Vertex<Element>, Weight>.Path? {
@@ -67,8 +65,22 @@ public extension WeightedGraph {
         
         return pathfinder.shortestPath(from: source, toPossibleTargets: [destination])
     }
-}
 
+    func shortestPath(from source: Element, to destination: (Element) -> Bool) -> DijkstraPathfinder<Vertex<Element>, Weight>.Path? {
+        return shortestPath(from: vertex(for: source)) { vertex in
+            return destination(vertex.value)
+        }
+    }
+
+    func shortestPath(from source: Vertex<Element>, to destination: (Vertex<Element>) -> Bool) -> DijkstraPathfinder<Vertex<Element>, Weight>.Path? {
+        let pathfinder = DijkstraPathfinder<Vertex<Element>, Weight> { current in
+            guard let neighboringEdges = self.edges(from: current) else { return [] }
+            return neighboringEdges.map { .init(state: $0.destination, cost: $0.weight) }
+        }
+
+        return pathfinder.shortestPath(from: source, toTarget: destination)
+    }
+}
 
 // MARK: - CustomStringConvertible
 extension WeightedGraph: CustomStringConvertible where Element: CustomStringConvertible {
@@ -92,7 +104,7 @@ private extension WeightedGraph {
     }
 
     func addDirectedEdge(from source: Vertex<Element>, to destination: Vertex<Element>, weight: Weight) {
-        let edge = Edge.Weighted(source: source, destination: destination, weight: weight)
+        let edge = WeightedEdge(source: source, destination: destination, weight: weight)
         adjacencyList[source]?.append(edge)
     }
 }

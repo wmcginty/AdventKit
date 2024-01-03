@@ -10,13 +10,14 @@ import Collections
 
 public class AStarPathfinder<State: Hashable, Cost: Numeric & Comparable> {
 
-    public typealias StateCost = DijkstraPathfinder<State, Cost>.StateCost
-    public typealias Path = DijkstraPathfinder<State, Cost>.Path
+    public typealias StateCost = Pathfinder.StateCost<State, Cost>
+    public typealias Path = Pathfinder.Path<State, Cost>
 
     private final class PathNode: Comparable, CustomStringConvertible {
 
         // MARK: - Coordinates
         let state: State
+        let moveCost: Cost // Cost from parent to node
         let parent: PathNode?
 
         let gScore: Cost // Cost from start to node
@@ -26,6 +27,7 @@ public class AStarPathfinder<State: Hashable, Cost: Numeric & Comparable> {
         // MARK: - Initializer
         init(state: State, parent: PathNode? = nil, moveCost: Cost = 0, heuristicCost: Cost = 0) {
             self.state = state
+            self.moveCost = moveCost
             self.parent = parent
             self.gScore = (parent?.gScore ?? 0) + moveCost
             self.hScore = heuristicCost
@@ -44,7 +46,7 @@ public class AStarPathfinder<State: Hashable, Cost: Numeric & Comparable> {
                 node = n.parent
             }
 
-            return Path(stateCosts: result.reversed().map { .init(state: $0.state, cost: $0.gScore) })
+            return Path(nodes: result.reversed().map { .init(state: $0.state, incrementalCost: $0.moveCost, totalCost: $0.gScore) })
         }
 
         // MARK: - Equatable

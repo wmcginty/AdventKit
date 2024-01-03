@@ -9,18 +9,23 @@ import Foundation
 
 public struct DijkstraPathfinder<State: Hashable, Cost: Numeric & Comparable> {
 
+    public typealias StateCost = Pathfinder.StateCost<State, Cost>
+    public typealias Path = Pathfinder.Path<State, Cost>
+
     private final class PathNode: Comparable, CustomStringConvertible {
 
         // MARK: - Coordinates
         let state: State
         let parent: PathNode?
-        let cost: Cost // Cost of traveling to this node
+        let incrementalCost: Cost // Cost from parent to node
+        let totalCost: Cost // Cost from start to node
 
         // MARK: - Initializer
         init(state: State, parent: PathNode? = nil, cost: Cost) {
             self.state = state
             self.parent = parent
-            self.cost = (parent?.cost ?? 0) + cost
+            self.incrementalCost = cost
+            self.totalCost = (parent?.totalCost ?? 0) + cost
         }
 
         // MARK: - Interface
@@ -32,7 +37,7 @@ public struct DijkstraPathfinder<State: Hashable, Cost: Numeric & Comparable> {
                 node = n.parent
             }
 
-            return Path(stateCosts: result.reversed().map { .init(state: $0.state, cost: $0.cost) })
+            return Path(nodes: result.reversed().map { .init(state: $0.state, incrementalCost: $0.incrementalCost, totalCost: $0.totalCost) })
         }
 
         // MARK: - Equatable
@@ -42,12 +47,12 @@ public struct DijkstraPathfinder<State: Hashable, Cost: Numeric & Comparable> {
 
         // MARK: - Comparable
         static func < (lhs: PathNode, rhs: PathNode) -> Bool {
-            lhs.cost < rhs.cost
+            lhs.totalCost < rhs.totalCost
         }
 
         // MARK: - CustomStringConvertible
         var description: String {
-            "state=\(state) cost=\(cost)"
+            "state=\(state) cost=\(totalCost)"
         }
     }
 
@@ -99,8 +104,7 @@ public struct DijkstraPathfinder<State: Hashable, Cost: Numeric & Comparable> {
 // MARK: - Preset
 public extension DijkstraPathfinder where Cost == Int {
 
-    static func distances(_ nextStates: @escaping (State) -> [StateCost]) -> DijkstraPathfinder<State, Int> {
+    static func distances(_ nextStates: @escaping (State) -> [Pathfinder.StateCost<State, Int>]) -> DijkstraPathfinder<State, Int> {
         return .init(nextStates: nextStates)
     }
 }
-
