@@ -25,6 +25,10 @@ public class WeightedGraph<Element: Hashable, Weight: Comparable & Hashable & Nu
         return vertex
     }
 
+    public func edges(from element: Element) -> [WeightedEdge<Element, Weight>]? {
+        return edges(from: vertex(for: element))
+    }
+
     public func edges(from source: Vertex<Element>) -> [WeightedEdge<Element, Weight>]? {
         return adjacencyList[source]
     }
