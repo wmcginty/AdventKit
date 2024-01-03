@@ -10,7 +10,17 @@ import XCTest
 
 final class GraphTests: XCTestCase {
 
-    private var simpleGraph: UnweightedGraph = {
+    private var simpleGraph: UnweightedGraph<String> = {
+        let graph = UnweightedGraph<String>()
+        graph.addEdge(.undirected, from: "1", to: "2")
+        graph.addEdge(.undirected, from: "1", to: "4")
+        graph.addEdge(.undirected, from: "2", to: "3")
+        graph.addEdge(.undirected, from: "2", to: "4")
+        graph.addEdge(.undirected, from: "3", to: "4")
+        return graph
+    }()
+
+    private var unweightedCityGraph: UnweightedGraph = {
         let cityGraph = UnweightedGraph<String>()
         cityGraph.addEdge(.undirected, from: "Seattle", to: "Chicago")
         cityGraph.addEdge(.undirected, from: "Seattle", to: "Denver")
@@ -38,7 +48,7 @@ final class GraphTests: XCTestCase {
         return cityGraph
     }()
 
-    private var simpleWeightedGraph: WeightedGraph = {
+    private var weightedCityGraph: WeightedGraph = {
         let cityGraph = WeightedGraph<String, Int>()
         cityGraph.addEdge(.undirected, from: "Seattle", to: "Chicago", weight: 2097)
         cityGraph.addEdge(.undirected, from: "Seattle", to: "Denver", weight: 1331)
@@ -67,7 +77,7 @@ final class GraphTests: XCTestCase {
     }()
 
     func testGraphDepthFirstTraversal() {
-        let graph = simpleGraph
+        let graph = unweightedCityGraph
         var results: [String] = []
         graph.depthFirstTraversal(from: "New York") { results.append($0) }
 
@@ -76,7 +86,7 @@ final class GraphTests: XCTestCase {
     }
 
     func testWeightedGraphDepthFirstTraversal() {
-        let graph = simpleWeightedGraph
+        let graph = weightedCityGraph
         var results: [String] = []
         graph.depthFirstTraversal(from: "New York") { results.append($0) }
 
@@ -84,7 +94,7 @@ final class GraphTests: XCTestCase {
     }
 
     func testGraphBreadthFirstTraversal() {
-        let graph = simpleGraph
+        let graph = unweightedCityGraph
         var results: [String] = []
         graph.breadthFirstTraversal(from: "New York") { results.append($0) }
 
@@ -92,7 +102,7 @@ final class GraphTests: XCTestCase {
     }
 
     func testWeightedGraphBreadthFirstTraversal() {
-        let graph = simpleWeightedGraph
+        let graph = weightedCityGraph
         var results: [String] = []
         graph.breadthFirstTraversal(from: "New York") { results.append($0) }
 
@@ -101,9 +111,16 @@ final class GraphTests: XCTestCase {
 
     func testUnweightedGraphEdgeContraction() {
         let graph = simpleGraph
-//        graph.contract(edge: .init(source: .init(value: "New York"), destination: .init(value: "Boston")))
-        graph.edgeCount
+        graph.contract(edge: .init(source: .init(value: "1"), destination: .init(value: "2")))
+        
+        let output = UnweightedGraph<String>()
+        output.addEdge(.undirected, from: "1-2", to: "4")
+        output.addEdge(.undirected, from: "1-2", to: "4")
+        output.addEdge(.undirected, from: "3", to: "1-2")
+        output.addEdge(.undirected, from: "3", to: "4")
+
+        XCTAssertEqual(graph.description, output.description)
     }
+
+    
 }
-
-

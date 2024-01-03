@@ -7,8 +7,12 @@
 
 import Foundation
 
+public protocol Graphable: Hashable {
+    func combined(with other: Self) -> Self
+}
+
 public protocol Graph<Element> {
-    associatedtype Element: Hashable
+    associatedtype Element: Graphable
     associatedtype EdgeType: Edge where EdgeType.Element == Element
 
     func vertex(for element: Element) -> Vertex<Element>
@@ -58,3 +62,9 @@ public extension Graph {
         }
     }
 }
+
+// MARK: - Graphable Conformances
+extension String: Graphable {
+    public func combined(with other: String) -> String { [self, other].joined(separator: "-") }
+}
+

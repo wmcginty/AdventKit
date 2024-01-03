@@ -6,8 +6,9 @@
 //
 
 import Foundation
+import OrderedCollections
 
-public class WeightedGraph<Element: Hashable, Weight: Comparable & Hashable & Numeric>: Graph {
+public class WeightedGraph<Element: Graphable, Weight: Comparable & Hashable & Numeric>: Graph {
 
     // MARK: - Properties
     private var adjacencyList: [Vertex<Element>: [WeightedEdge<Element, Weight>]] = [:]
@@ -90,12 +91,13 @@ public extension WeightedGraph {
 extension WeightedGraph: CustomStringConvertible where Element: CustomStringConvertible {
 
     public var description: String {
-        var result = ""
+        var result: [String] = []
         for (vertex, edges) in adjacencyList {
-            let edgeString = edges.map { "\($0.destination.value) (\($0.weight))" }.formatted()
-            result.append("\(vertex) --> [ \(edgeString) ]\n")
+            let edgeString = edges.map { "\($0.destination.value) (\($0.weight))" }.sorted().formatted()
+            result.append("\(vertex) --> [ \(edgeString) ]")
         }
-        return result
+        
+        return result.sorted().joined(separator: "\n")
     }
 }
 

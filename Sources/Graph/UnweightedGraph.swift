@@ -7,7 +7,7 @@
 
 import Foundation
 
-public class UnweightedGraph<Element: Hashable>: Graph {
+public class UnweightedGraph<Element: Graphable>: Graph, Equatable {
 
     // MARK: - Properties
     private var adjacencyList: [Vertex<Element>: [UnweightedEdge<Element>]] = [:]
@@ -24,6 +24,7 @@ public class UnweightedGraph<Element: Hashable>: Graph {
     }
 
     // MARK: - Interface
+    public var vertices: [Vertex<Element>] { return Array(adjacencyList.keys) }
     public var vertexCount: Int { return adjacencyList.keys.count }
     public var edgeCount: Int {
         var edgeCount = 0
@@ -52,8 +53,8 @@ public class UnweightedGraph<Element: Hashable>: Graph {
     func remove(vertex: Vertex<Element>) {
         adjacencyList.removeValue(forKey: vertex)
 
-        for (vertex, edges) in adjacencyList {
-            adjacencyList[vertex] = edges.filter { $0.destination != vertex }
+        for (otherVertex, edges) in adjacencyList {
+            adjacencyList[otherVertex] = edges.filter { $0.destination != vertex }
         }
     }
 
@@ -83,32 +84,30 @@ public class UnweightedGraph<Element: Hashable>: Graph {
 // MARK: - Min Cut
 extension UnweightedGraph {
 
-    private var randomEdge: UnweightedEdge<Element>? {
-        let edges = adjacencyList.values.flatMap { $0 }
-        return edges.randomElement()
-    }
-
     public func contract(edge: UnweightedEdge<Element>) {
-        let sourceVertex = edge.source
-        let destinationVertex = edge.destination
+        let source = edge.source
+        let destination = edge.destination
 
-        let edgesFromSource = edges(from: sourceVertex) ?? []
-        if let edgesFromDestination = edges(from: destinationVertex) {
-            for edge in edgesFromDestination {
-                if let invertedEdge = edges(from: edge.destination)?.first(where: { $0.destination == destinationVertex }) {
-                    remove(edge: invertedEdge)
-                    addEdge(.directed, from: invertedEdge.source, to: edge.destination)
-                }
-
-                if edge.destination != sourceVertex {
-                    if !edgesFromSource.contains(where: { $0.destination == edge.destination }) {
-                        addEdge(.directed, from: sourceVertex, to: edge.destination)
-                    }
-                }
+        let merged = vertex(for: source.value.combined(with: destination.value))
+        edges(from: source)?.forEach {
+            if ![source, destination].contains($0.destination) {
+                addEdge(.undirected, from: merged, to: $0.destination)
             }
         }
 
-        remove(vertex: destinationVertex)
+        edges(from: destination)?.forEach {
+            if ![source, destination].contains($0.destination) {
+                addEdge(.undirected, from: merged, to: $0.destination)
+            }
+        }
+
+        remove(vertex: source)
+        remove(vertex: destination)
+    }
+
+    private var randomEdge: UnweightedEdge<Element>? {
+        let edges = adjacencyList.values.flatMap { $0 }
+        return edges.randomElement()
     }
 
     public func kargersMinimumCut(iterations: Int) -> Int {
@@ -144,12 +143,21 @@ extension UnweightedGraph {
 extension UnweightedGraph: CustomStringConvertible where Element: CustomStringConvertible {
 
     public var description: String {
-        var result = ""
+        var result: [String] = []
         for (vertex, edges) in adjacencyList {
-            let edgeString = edges.map(\.destination.value.description).formatted()
-            result.append("\(vertex) --> [ \(edgeString) ]\n")
+            let edgeString = edges.map(\.destination.value.description).sorted().formatted()
+            result.append("\(vertex) --> [ \(edgeString) ]")
         }
-        return result
+
+        return result.sorted().joined(separator: "\n")
+    }
+}
+
+// MARK: - Equatable
+extension UnweightedGraph {
+
+    public static func == (lhs: UnweightedGraph<Element>, rhs: UnweightedGraph<Element>) -> Bool {
+        return lhs.adjacencyList == rhs.adjacencyList
     }
 }
 

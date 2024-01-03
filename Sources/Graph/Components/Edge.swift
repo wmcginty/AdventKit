@@ -8,13 +8,13 @@
 import Foundation
 
 public protocol Edge<Element> {
-    associatedtype Element: Hashable
+    associatedtype Element: Graphable
 
     var source: Vertex<Element> { get }
     var destination: Vertex<Element> { get }
 }
 
-public struct UnweightedEdge<Element: Hashable>: Edge, Hashable {
+public struct UnweightedEdge<Element: Graphable>: Edge, Hashable {
 
     // MARK: - UnweightedEdge.Kind
     public enum Kind: CaseIterable {
@@ -37,7 +37,7 @@ public struct UnweightedEdge<Element: Hashable>: Edge, Hashable {
     }
 }
 
-public struct WeightedEdge<Element: Hashable, Weight: Comparable & Hashable & Numeric>: Edge, Hashable {
+public struct WeightedEdge<Element: Graphable, Weight: Comparable & Hashable & Numeric>: Edge, Hashable {
 
     public typealias Kind = UnweightedEdge<Element>.Kind
 
