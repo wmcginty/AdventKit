@@ -122,5 +122,12 @@ final class GraphTests: XCTestCase {
         XCTAssertEqual(graph.description, output.description)
     }
 
-    
+    func testUnweightedGraphMultipleEdgeContraction() {
+        let graph = simpleGraph
+
+        let minCut = graph.kargersMinimumCut(iterations: 1000)
+        print(minCut.0)
+        print(minCut.1)
+
+    }
 }
