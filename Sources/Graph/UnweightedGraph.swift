@@ -87,10 +87,13 @@ public class UnweightedGraph<Element: Graphable>: Graph, Equatable {
 extension UnweightedGraph {
 
     public struct MinimumCut {
+        
+        // MARK: - Properties
         public let count: Int
         public let edges: [UnweightedEdge<Element>]
 
-        func distinctSubsets(of graph: UnweightedGraph<Element>) -> [Set<Element>] {
+        // MARK: - Interface
+        public func distinctSubsets(of graph: UnweightedGraph<Element>) -> [Set<Element>] {
             guard let initial = graph.vertices.first else { return [] }
 
             var subset: Set<Element> = []
