@@ -86,56 +86,28 @@ public class UnweightedGraph<Element: Graphable>: Graph, Equatable {
 // MARK: - Min Cut
 extension UnweightedGraph {
 
-    //    public func contract(edge: UnweightedEdge<Element>) {
-    //        let source = edge.source
-    //        let destination = edge.destination
-    //
-    //        let merged = vertex(for: source.value.combined(with: destination.value))
-    //        edges(from: source)?.forEach {
-    //            if ![source, destination].contains($0.destination) {
-    //                addEdge(.undirected, from: merged, to: $0.destination)
-    //            }
-    //        }
-    //
-    //        edges(from: destination)?.forEach {
-    //            if ![source, destination].contains($0.destination) {
-    //                addEdge(.undirected, from: merged, to: $0.destination)
-    //            }
-    //        }
-    //
-    //        remove(vertex: source)
-    //        remove(vertex: destination)
-    //    }
-    //
-        public var randomEdge: UnweightedEdge<Element>? {
-            let edges = adjacencyList.values.flatMap { $0 }
-            return edges.randomElement()
+    public struct MinimumCut {
+        public let count: Int
+        public let edges: [UnweightedEdge<Element>]
+
+        func distinctSubsets(of graph: UnweightedGraph<Element>) -> [Set<Element>] {
+            guard let initial = graph.vertices.first else { return [] }
+
+            var subset: Set<Element> = []
+            graph.depthFirstTraversal(from: initial) { edge in
+                return !edges.contains(edge)
+            } visit: { vertex in
+                subset.insert(vertex.value)
+            }
+
+            let others = Set(graph.vertices.map(\.value).filter { !subset.contains($0) })
+            return [subset, others]
         }
-    //
-    //    public func kargersMinimumCut(iterations: Int) -> Int {
-    //        var minCut = Int.max
-    //
-    //        for _ in 0..<iterations {
-    //            // Make a copy of the graph
-    //            let cutGraph = UnweightedGraph(unweightedGraph: self)
-    //
-    //            // Keep contracting edges until 2 vertices are left
-    //            while cutGraph.vertexCount > 2 {
-    //                if let randomEdge = cutGraph.randomEdge {
-    //                    cutGraph.contract(edge: randomEdge)
-    //                }
-    //            }
-    //
-    //            // Count the edges between the remaining two vertices
-    //            let cutSize = cutGraph.edgeCount
-    //
-    //            if cutSize < minCut {
-    //                minCut = cutSize
-    //            }
-    //        }
-    //
-    //        return minCut
-    //    }
+    }
+
+    public var randomEdge: UnweightedEdge<Element>? {
+        return edges.randomElement()
+    }
 
     public func contract(edge: UnweightedEdge<Element>) {
         var emptyCache: [Vertex<Element>: Vertex<Element>] = [:]
@@ -166,8 +138,7 @@ extension UnweightedGraph {
         remove(vertex: destination)
     }
 
-
-    public func kargersMinimumCut(iterations: Int) -> (Int, [UnweightedEdge<Element>]) {
+    public func kargersMinimumCut(iterations: Int) -> MinimumCut {
         func parent(of vertex: Vertex<Element>, in parentCache: [Vertex<Element>: Vertex<Element>]) -> Vertex<Element> {
             var current = vertex
             while let parent = parentCache[current], parent != current {
@@ -207,7 +178,7 @@ extension UnweightedGraph {
             }
         }
 
-        return (minCut, minCutEdges)
+        return MinimumCut(count: minCut, edges: minCutEdges)
     }
 }
 

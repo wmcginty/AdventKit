@@ -27,6 +27,10 @@ public extension Graph {
     }
 
     func depthFirstTraversal(from source: Vertex<Element>, visit: (Vertex<Element>) -> Void) {
+        return depthFirstTraversal(from: source, shouldTraverse: { _ in true }, visit: visit)
+    }
+
+    func depthFirstTraversal(from source: Vertex<Element>, shouldTraverse: (EdgeType) -> Bool, visit: (Vertex<Element>) -> Void) {
         var visited: Set<Vertex<Element>> = []
         var deque: Deque<Vertex<Element>> = [source]
         while let next = deque.popLast() {
@@ -36,7 +40,7 @@ public extension Graph {
             visited.insert(next)
             visit(next)
 
-            if let neighbors = edges(from: next)?.map(\.destination) {
+            if let neighbors = edges(from: next)?.filter(shouldTraverse).map(\.destination) {
                 deque.append(contentsOf: neighbors)
             }
         }
@@ -47,6 +51,10 @@ public extension Graph {
     }
 
     func breadthFirstTraversal(from source: Vertex<Element>, visit: (Vertex<Element>) -> Void) {
+        return breadthFirstTraversal(from: source, shouldTraverse: { _ in true }, visit: visit)
+    }
+
+    func breadthFirstTraversal(from source: Vertex<Element>, shouldTraverse: (EdgeType) -> Bool, visit: (Vertex<Element>) -> Void) {
         var visited: Set<Vertex<Element>> = []
         var deque: Deque<Vertex<Element>> = [source]
         while let next = deque.popFirst() {
@@ -56,7 +64,7 @@ public extension Graph {
             visited.insert(next)
             visit(next)
 
-            if let neighbors = edges(from: next)?.map(\.destination) {
+            if let neighbors = edges(from: next)?.filter(shouldTraverse).map(\.destination) {
                 deque.append(contentsOf: neighbors)
             }
         }

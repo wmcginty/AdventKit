@@ -81,7 +81,6 @@ final class GraphTests: XCTestCase {
         var results: [String] = []
         graph.depthFirstTraversal(from: "New York") { results.append($0) }
 
-        print(graph.description)
         XCTAssertEqual("New York, Atlanta, Miami, Houston, Dallas, Kansas City, Chicago, Boston, Denver, Los Angeles, San Francisco, and Seattle", results.formatted())
     }
 
@@ -126,8 +125,7 @@ final class GraphTests: XCTestCase {
         let graph = simpleGraph
 
         let minCut = graph.kargersMinimumCut(iterations: 1000)
-        print(minCut.0)
-        print(minCut.1)
-
+        XCTAssertEqual(minCut.count, 2)
+        XCTAssertEqual(minCut.edges.count, minCut.count * 2) // Every edge is undirected, which is represented as 2 'directed' edges.
     }
 }
